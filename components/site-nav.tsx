@@ -46,7 +46,7 @@ export function SiteNav() {
         <div className="mx-auto flex max-w-[1380px] items-center justify-between rounded-full border border-white/10 bg-[#06101acc]/80 px-4 py-3 shadow-panel backdrop-blur-xl md:px-6">
           <Link href="/" className="relative block h-10 w-[132px] shrink-0">
             <Image
-              src="/official%20logos/dw-large.svg"
+              src="/official%20logos/bww.svg"
               alt="Driftwoods"
               fill
               sizes="132px"
