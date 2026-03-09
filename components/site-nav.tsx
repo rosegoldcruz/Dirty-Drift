@@ -14,7 +14,7 @@ import {
   X
 } from 'lucide-react';
 import { useEffect, useState } from 'react';
-import { directionsUrl, navLinks, orderUrl } from '@/lib/site-data';
+import { directionsUrl, navLinks, orderPageHref } from '@/lib/production-site-data';
 
 const flingItems = [
   { icon: Beer, label: 'Drinks', className: '-left-14 top-1' },
@@ -44,7 +44,7 @@ export function SiteNav() {
         transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
       >
         <div className="mx-auto flex max-w-[1380px] items-center justify-between rounded-full border border-white/10 bg-[#06101acc]/80 px-4 py-3 shadow-panel backdrop-blur-xl md:px-6">
-          <Link href="#top" className="relative block h-10 w-[132px] shrink-0">
+          <Link href="/" className="relative block h-10 w-[132px] shrink-0">
             <Image
               src="/official%20logos/dw-large.svg"
               alt="Driftwoods"
@@ -122,13 +122,13 @@ export function SiteNav() {
               <div className="relative flex h-full flex-col p-6 md:p-8">
                 <div className="mb-8 flex items-end justify-between gap-4">
                   <div>
-                    <p className="eyebrow">Night signal</p>
+                    <p className="eyebrow">Navigation</p>
                     <h2 className="mt-3 max-w-sm text-4xl leading-none text-cream md:text-5xl">
-                      Pull up to Driftwoods tonight.
+                      Driftwoods.
                     </h2>
                   </div>
                   <p className="max-w-[12rem] text-sm leading-6 text-cream/60">
-                    Same Driftwoods. Stronger signal. Better motion. More reason to stay.
+                    Jump to the page you need.
                   </p>
                 </div>
                 <div className="grid gap-3">
@@ -156,7 +156,7 @@ export function SiteNav() {
                   ))}
                 </div>
                 <div className="mt-auto grid gap-3 pt-8 md:grid-cols-2">
-                  <Link href={orderUrl} target="_blank" className="cta-primary text-center" onClick={() => setOpen(false)}>
+                  <Link href={orderPageHref} className="cta-primary text-center" onClick={() => setOpen(false)}>
                     Order Online
                   </Link>
                   <Link href={directionsUrl} target="_blank" className="cta-secondary text-center" onClick={() => setOpen(false)}>

@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import type { ReactNode } from 'react';
 import { Barlow_Condensed, Inter_Tight } from 'next/font/google';
+import { siteUrl } from '@/lib/production-site-data';
 import './globals.css';
 
 const display = Barlow_Condensed({
@@ -16,9 +17,13 @@ const body = Inter_Tight({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL(siteUrl),
   title: 'Driftwoods | Sunnyslope After Dark',
   description:
-    'A new-era homepage for Driftwoods: bar pulse, patio life, food that holds its own, and neighborhood energy after dark.'
+    'A new-era homepage for Driftwoods: bar pulse, patio life, food that holds its own, and neighborhood energy after dark.',
+  alternates: {
+    canonical: '/'
+  }
 };
 
 export default function RootLayout({
