@@ -3,27 +3,9 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { AnimatePresence, motion } from 'framer-motion';
-import {
-  Beer,
-  CalendarDays,
-  MapPin,
-  Menu,
-  Music4,
-  Trophy,
-  UtensilsCrossed,
-  X
-} from 'lucide-react';
+import { Menu, X } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { directionsUrl, navLinks, orderPageHref } from '@/lib/production-site-data';
-
-const flingItems = [
-  { icon: Beer, label: 'Drinks', className: '-left-14 top-1' },
-  { icon: UtensilsCrossed, label: 'Food', className: '-left-4 -top-12' },
-  { icon: Music4, label: 'Nights', className: 'right-10 -top-11' },
-  { icon: Trophy, label: 'Sports', className: 'right-[-0.5rem] top-2' },
-  { icon: CalendarDays, label: 'Events', className: '-left-2 bottom-[-2.8rem]' },
-  { icon: MapPin, label: 'Sunnyslope', className: 'right-4 bottom-[-2.8rem]' }
-];
 
 export function SiteNav() {
   const [open, setOpen] = useState(false);
@@ -59,9 +41,8 @@ export function SiteNav() {
               aria-expanded={open}
               aria-label={open ? 'Close navigation menu' : 'Open navigation menu'}
               onClick={() => setOpen((current) => !current)}
-              className="group relative inline-flex h-12 w-12 items-center justify-center rounded-full border border-white/[0.12] bg-white/[0.05] text-cream transition duration-300 hover:border-cyan/40 hover:bg-white/[0.08]"
+              className="relative inline-flex h-12 w-12 items-center justify-center rounded-full border border-white/[0.12] bg-white/[0.05] text-cream transition duration-300 hover:border-white/30 hover:bg-white/[0.08]"
             >
-              <span className="absolute inset-0 rounded-full bg-[radial-gradient(circle_at_center,rgba(107,231,255,0.18),transparent_66%)] opacity-0 transition duration-300 group-hover:opacity-100" />
               <motion.span
                 className="relative z-10"
                 animate={{ rotate: open ? 90 : 0, scale: open ? 0.92 : 1 }}
@@ -70,29 +51,6 @@ export function SiteNav() {
                 {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
               </motion.span>
             </button>
-            <AnimatePresence>
-              {open &&
-                flingItems.map((item, index) => {
-                  const Icon = item.icon;
-                  return (
-                    <motion.span
-                      key={item.label}
-                      className={`absolute ${item.className} inline-flex items-center gap-2 rounded-full border border-white/10 bg-[#0a1622] px-3 py-1 text-[0.62rem] font-semibold uppercase tracking-[0.22em] text-cream/90 shadow-panel`}
-                      initial={{ opacity: 0, scale: 0.2, x: 8, y: 8 }}
-                      animate={{ opacity: 1, scale: 1, x: 0, y: 0 }}
-                      exit={{ opacity: 0, scale: 0.2, x: 8, y: 8 }}
-                      transition={{
-                        duration: 0.28,
-                        delay: index * 0.03,
-                        ease: [0.16, 1, 0.3, 1]
-                      }}
-                    >
-                      <Icon className="h-3.5 w-3.5 text-cyan" />
-                      {item.label}
-                    </motion.span>
-                  );
-                })}
-            </AnimatePresence>
           </div>
         </div>
       </motion.header>
@@ -107,7 +65,7 @@ export function SiteNav() {
             transition={{ duration: 0.25 }}
           >
             <motion.div
-              className="menu-tray absolute inset-x-4 top-[5.6rem] bottom-4 overflow-hidden rounded-[2rem] border border-white/10 bg-[#07111de6] shadow-panel md:inset-x-auto md:right-8 md:top-[6.3rem] md:w-[560px]"
+              className="menu-tray absolute inset-x-4 top-[5.6rem] bottom-6 overflow-hidden rounded-[2rem] border border-white/10 bg-[#07111de6] shadow-panel md:inset-x-auto md:right-8 md:top-[6.3rem] md:bottom-8 md:w-[560px]"
               initial={{ opacity: 0, y: -24, scale: 0.98 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: -20, scale: 0.98 }}
@@ -119,7 +77,7 @@ export function SiteNav() {
                 animate={{ x: ['-18%', '18%', '-18%'], opacity: [0.18, 0.34, 0.18] }}
                 transition={{ duration: 11, repeat: Infinity, ease: 'easeInOut' }}
               />
-              <div className="relative flex h-full flex-col p-6 md:p-8">
+              <div className="relative flex h-full min-h-0 flex-col overflow-y-auto p-6 md:p-8">
                 <div className="mb-8 flex items-end justify-between gap-4">
                   <div>
                     <p className="eyebrow">Navigation</p>
@@ -155,7 +113,7 @@ export function SiteNav() {
                     </motion.a>
                   ))}
                 </div>
-                <div className="mt-auto grid gap-3 pt-8 md:grid-cols-2">
+                <div className="mt-8 grid gap-3 pb-2 md:mt-auto md:grid-cols-2">
                   <Link href={orderPageHref} className="cta-primary text-center" onClick={() => setOpen(false)}>
                     Order Online
                   </Link>
