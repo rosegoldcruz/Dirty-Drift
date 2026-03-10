@@ -5,10 +5,12 @@ import Image from 'next/image';
 import { AnimatePresence, motion } from 'framer-motion';
 import { Menu, X } from 'lucide-react';
 import { useEffect, useState } from 'react';
+import { NavFlingIcons } from '@/components/nav-fling-icons';
 import { directionsUrl, navLinks, orderPageHref } from '@/lib/production-site-data';
 
 export function SiteNav() {
   const [open, setOpen] = useState(false);
+  const [flingCount, setFlingCount] = useState(0);
 
   useEffect(() => {
     document.body.style.overflow = open ? 'hidden' : '';
@@ -19,6 +21,7 @@ export function SiteNav() {
 
   return (
     <>
+      <NavFlingIcons triggerCount={flingCount} />
       <motion.header
         className="fixed inset-x-0 top-0 z-50 px-4 pt-4 md:px-8 md:pt-6"
         initial={{ opacity: 0, y: -16 }}
@@ -40,7 +43,15 @@ export function SiteNav() {
               type="button"
               aria-expanded={open}
               aria-label={open ? 'Close navigation menu' : 'Open navigation menu'}
-              onClick={() => setOpen((current) => !current)}
+              onClick={() => {
+                setOpen((current) => {
+                  if (!current) {
+                    setFlingCount((count) => count + 1);
+                  }
+
+                  return !current;
+                });
+              }}
               className="relative inline-flex h-12 w-12 items-center justify-center rounded-full border border-white/[0.12] bg-white/[0.05] text-cream transition duration-300 hover:border-white/30 hover:bg-white/[0.08]"
             >
               <motion.span
