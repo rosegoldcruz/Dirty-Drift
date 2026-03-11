@@ -93,6 +93,7 @@ export const eventsPageHref = '/events';
 export const gameDayPageHref = '/game-day';
 export const happyHourPageHref = '/happy-hour';
 export const privateBookingsHref = '/private-bookings';
+export const careersPageHref = '/careers';
 
 export const navLinks: NavItem[] = [
   {
@@ -129,6 +130,11 @@ export const navLinks: NavItem[] = [
     href: privateBookingsHref,
     label: 'Private Bookings',
     note: 'Game day reservations + event planning'
+  },
+  {
+    href: careersPageHref,
+    label: 'Careers',
+    note: 'Open positions + online application'
   }
 ];
 
@@ -140,6 +146,7 @@ export const footerNavLinks = [
   { label: 'Happy Hour', href: happyHourPageHref },
   { label: 'Order', href: orderPageHref },
   { label: 'Private Bookings', href: privateBookingsHref },
+  { label: 'Careers', href: careersPageHref },
   { label: 'Get Directions', href: directionsUrl }
 ];
 

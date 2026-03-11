@@ -124,7 +124,7 @@ export function SiteNav() {
                     </motion.a>
                   ))}
                 </div>
-                <div className="mt-8 grid gap-3 pb-2 md:mt-auto md:grid-cols-2">
+                <div className="mt-3 grid gap-3 pb-2 md:mt-auto md:grid-cols-2">
                   <Link href={orderPageHref} className="cta-primary text-center" onClick={() => setOpen(false)}>
                     Order Online
                   </Link>
