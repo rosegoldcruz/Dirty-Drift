@@ -258,14 +258,14 @@ export function OnTapPageContent() {
                     transition={{ duration: 0.55, ease: [0.16, 1, 0.3, 1] }}
                     style={{ y: heroAssetY }}
                   >
-                    <div className="absolute inset-0">
+                    <div className="absolute bottom-[-8%] right-[-4%] top-[2%] w-[72%] md:bottom-[-10%] md:right-[-6%] md:top-0 md:w-[78%]">
                       <Image
                         src={featuredCocktail.image}
                         alt={featuredCocktail.name}
                         fill
                         unoptimized
                         sizes="(min-width: 1280px) 32vw, (min-width: 768px) 40vw, 90vw"
-                        className="object-contain object-right-bottom drop-shadow-[0_24px_42px_rgba(0,0,0,0.42)]"
+                        className="object-contain object-right-bottom scale-[1.7] drop-shadow-[0_28px_52px_rgba(0,0,0,0.48)] md:scale-[1.95]"
                       />
                     </div>
                   </motion.div>
