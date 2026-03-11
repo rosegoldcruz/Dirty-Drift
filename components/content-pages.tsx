@@ -14,6 +14,7 @@ import {
   eventTracks,
   eventsPageHref,
   featuredCocktails,
+  happyHourPageHref,
   gameDayMoments,
   happyHourItems,
   happyHourReasons,
@@ -187,6 +188,7 @@ const cocktailAccentBackgrounds: Record<string, string> = {
 
 export function OnTapPageContent() {
   const [featuredIndex, setFeaturedIndex] = useState(0);
+  const [activeSelector, setActiveSelector] = useState('spotlight');
   const { scrollYProgress } = useScroll();
   const heroAssetY = useTransform(scrollYProgress, [0, 0.22], [0, 36]);
   const heroGlowOpacity = useTransform(scrollYProgress, [0, 0.18], [0.48, 0.18]);
@@ -202,25 +204,79 @@ export function OnTapPageContent() {
   }, []);
 
   const featuredCocktail = featuredCocktails[featuredIndex];
-  const driftRailItems = [...onTapAssetRails[0].items, ...onTapAssetRails[1].items];
-  const happyHourAssets = onTapAssetRails[1].items.slice(0, 3);
+  const draftRail = onTapAssetRails[0]?.items ?? [];
+  const bottleRail = onTapAssetRails[1]?.items ?? [];
+  const happyHourAssets = bottleRail.slice(0, 3);
+  const signatureCocktailNames = new Set(featuredCocktails.map((item) => item.name));
+  const featuredCocktailNotes = new Map(featuredCocktails.map((item) => [item.name, item.note]));
+  const signatureCocktailItems = cocktails.filter((item) => signatureCocktailNames.has(item.name));
+  const secondaryCocktailItems = cocktails.filter((item) => !signatureCocktailNames.has(item.name));
+  const primaryCategory = tapCategories.find((category) => category.title === 'On Tap Now');
+  const bottleCategory = tapCategories.find((category) => category.title === 'Bottles & Cans');
+  const nonAlcoholicCategory = tapCategories.find((category) => category.title === 'Non-Alcoholic Beer');
+  const wineCategory = tapCategories.find((category) => category.title === 'Wine List');
+  const seasonalCategory = tapCategories.find((category) => category.title === 'Seasonal Craft Beer');
+  const happyHourDrinkItems = happyHourItems.slice(0, 4);
+  const happyHourFoodItems = happyHourItems.slice(4);
+  const selectorItems = [
+    {
+      id: 'spotlight',
+      kicker: 'Spotlight',
+      label: 'Featured cocktail',
+      note: featuredCocktail.name,
+      image: featuredCocktail.image
+    },
+    {
+      id: 'bar-guide',
+      kicker: 'Bar guide',
+      label: 'Drafts, bottles, wine',
+      note: 'Current public roster',
+      image: draftRail[0]?.image ?? bottleRail[0]?.image ?? featuredCocktail.image
+    },
+    {
+      id: 'cocktail-guide',
+      kicker: 'House pours',
+      label: 'Cocktail roster',
+      note: `${cocktails.length} cocktails on the board`,
+      image: featuredCocktail.image
+    },
+    {
+      id: 'happy-hour-guide',
+      kicker: 'Daily window',
+      label: 'Happy hour',
+      note: 'Daily until 7pm',
+      image: bottleRail[1]?.image ?? bottleRail[0]?.image ?? featuredCocktail.image
+    }
+  ];
+
+  const scrollToSection = (id: string) => {
+    setActiveSelector(id);
+
+    if (typeof document !== 'undefined') {
+      document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  };
 
   return (
     <PageShell>
-      <section className="px-4 pb-6 pt-28 md:px-8 md:pb-8 md:pt-32">
-        <div className="mx-auto max-w-[1380px] overflow-hidden rounded-[2rem] border border-white/10 bg-white/[0.03] p-6 shadow-panel backdrop-blur-sm md:p-10">
+      <section id="spotlight" className="px-4 pb-6 pt-28 md:px-8 md:pb-8 md:pt-32">
+        <div className="relative mx-auto max-w-[1380px] overflow-hidden rounded-[2.15rem] border border-white/10 bg-white/[0.03] p-6 shadow-panel backdrop-blur-sm md:p-10">
           <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_72%_30%,rgba(107,231,255,0.12),transparent_24%),radial-gradient(circle_at_82%_62%,rgba(255,97,56,0.12),transparent_18%)]" />
-          <div className="relative grid gap-8 xl:grid-cols-[1.02fr_0.98fr] xl:items-center">
+          <div className="pointer-events-none absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-white/0 via-white/18 to-white/0" />
+          <div className="relative grid gap-8 xl:grid-cols-[0.98fr_1.02fr] xl:items-center">
             <motion.div
               initial={{ opacity: 0, y: 24 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-              className="max-w-4xl"
+              className="max-w-4xl xl:pr-4"
             >
               <p className="eyebrow">SEE WHAT'S ON TAP</p>
               <h1 className="mt-4 text-5xl uppercase leading-[0.9] text-cream md:text-7xl">SEE WHAT'S ON TAP.</h1>
               <p className="mt-6 max-w-3xl text-base leading-7 text-cream/[0.74] md:text-lg">
                 This is the bar guide: the exact draft lineup, bottles and cans, wine list, seasonal craft callout, and the current cocktail roster people should check before they pull up.
+              </p>
+              <p className="mt-5 max-w-2xl text-[0.72rem] font-semibold uppercase tracking-[0.24em] text-cream/[0.48]">
+                Cocktail-led energy. Cleaner hierarchy. Fewer, stronger image moments.
               </p>
               <div className="mt-8 flex flex-col gap-3 sm:flex-row">
                 <Link href={orderPageHref} className="cta-primary">
@@ -233,83 +289,113 @@ export function OnTapPageContent() {
             </motion.div>
 
             <motion.div
-              className="relative min-h-[300px] overflow-hidden rounded-[1.85rem] border border-white/[0.08] bg-[#08131f] p-5 md:min-h-[420px] md:p-8"
+              className="relative min-h-[340px] overflow-hidden rounded-[1.95rem] border border-white/[0.08] bg-[#08131f] p-5 md:min-h-[430px] md:p-8"
               initial={{ opacity: 0, y: 24 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: 0.08, ease: [0.16, 1, 0.3, 1] }}
             >
+              <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(115deg,rgba(5,14,23,0.92)_20%,rgba(5,14,23,0.72)_44%,rgba(5,14,23,0.16)_76%)]" />
               <motion.div
                 className="absolute right-[10%] top-[14%] h-44 w-44 rounded-full bg-rust/30 blur-3xl md:h-56 md:w-56"
                 style={{ opacity: heroGlowOpacity }}
               />
+              <motion.div
+                key={featuredCocktail.name}
+                className="pointer-events-none absolute bottom-[-4%] right-[-1%] top-[6%] w-[70%] md:bottom-[-8%] md:right-[-4%] md:top-[4%] md:w-[76%]"
+                initial={{ opacity: 0, scale: 0.94, y: 20 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                transition={{ duration: 0.55, ease: [0.16, 1, 0.3, 1] }}
+                style={{ y: heroAssetY }}
+              >
+                <Image
+                  src={featuredCocktail.image}
+                  alt={featuredCocktail.name}
+                  fill
+                  unoptimized
+                  sizes="(min-width: 1280px) 34vw, (min-width: 768px) 40vw, 90vw"
+                  className="object-contain object-right-bottom scale-[1.88] drop-shadow-[0_28px_52px_rgba(0,0,0,0.52)] md:scale-[2.15]"
+                />
+              </motion.div>
               <div className="relative flex h-full flex-col justify-between">
-                <div className="max-w-xs rounded-[1.25rem] border border-white/[0.08] bg-white/[0.03] p-4 backdrop-blur-sm">
+                <div className="max-w-[18rem] rounded-[1.35rem] border border-white/[0.08] bg-[#0a1520]/82 p-4 backdrop-blur-md md:max-w-[19.5rem] md:p-5">
                   <p className="eyebrow">Featured cocktail</p>
-                  <h2 className="mt-3 text-3xl uppercase leading-[0.94] text-cream">{featuredCocktail.name}</h2>
+                  <h2 className="mt-3 text-3xl uppercase leading-[0.94] text-cream md:text-[2.2rem]">{featuredCocktail.name}</h2>
                   <p className="mt-3 text-sm leading-6 text-cream/[0.7]">{featuredCocktail.note}</p>
                 </div>
 
-                <div className="absolute inset-x-0 bottom-0 top-20 md:top-8">
-                  <motion.div
-                    key={featuredCocktail.name}
-                    className="absolute inset-0"
-                    initial={{ opacity: 0, scale: 0.94, y: 20 }}
-                    animate={{ opacity: 1, scale: 1, y: 0 }}
-                    transition={{ duration: 0.55, ease: [0.16, 1, 0.3, 1] }}
-                    style={{ y: heroAssetY }}
-                  >
-                    <div className="absolute bottom-[-8%] right-[-4%] top-[2%] w-[72%] md:bottom-[-10%] md:right-[-6%] md:top-0 md:w-[78%]">
-                      <Image
-                        src={featuredCocktail.image}
-                        alt={featuredCocktail.name}
-                        fill
-                        unoptimized
-                        sizes="(min-width: 1280px) 32vw, (min-width: 768px) 40vw, 90vw"
-                        className="object-contain object-right-bottom scale-[1.7] drop-shadow-[0_28px_52px_rgba(0,0,0,0.48)] md:scale-[1.95]"
-                      />
+                <div className="max-w-[22rem] rounded-[1.3rem] border border-white/[0.08] bg-[#09131b]/80 p-4 backdrop-blur-md md:p-5">
+                  <div className="flex items-end justify-between gap-4">
+                    <div>
+                      <p className="text-[0.64rem] font-semibold uppercase tracking-[0.24em] text-cyan/[0.84]">Current spotlight</p>
+                      <p className="mt-2 text-sm leading-6 text-cream/[0.68]">
+                        Cocktail-led energy, tighter bar hierarchy, and fewer but stronger image moments.
+                      </p>
                     </div>
-                  </motion.div>
-                </div>
-
-                <div className="relative z-10 mt-auto flex items-center gap-2 text-[0.68rem] font-semibold uppercase tracking-[0.22em] text-cream/[0.62]">
-                  {featuredCocktails.map((item, index) => (
-                    <button
-                      key={item.name}
-                      type="button"
-                      onClick={() => setFeaturedIndex(index)}
-                      className={`h-2 rounded-full transition duration-300 ${index === featuredIndex ? 'w-8 bg-cyan' : 'w-2 bg-white/25 hover:bg-white/45'}`}
-                      aria-label={`Show featured cocktail ${item.name}`}
-                    />
-                  ))}
+                    <p className="shrink-0 text-[0.64rem] font-semibold uppercase tracking-[0.24em] text-cream/[0.46]">
+                      0{featuredIndex + 1}/0{featuredCocktails.length}
+                    </p>
+                  </div>
+                  <div className="mt-4 flex items-center gap-2">
+                    {featuredCocktails.map((item, index) => (
+                      <button
+                        key={item.name}
+                        type="button"
+                        onClick={() => {
+                          setFeaturedIndex(index);
+                          setActiveSelector('spotlight');
+                        }}
+                        className={`h-2 rounded-full transition duration-300 ${index === featuredIndex ? 'w-10 bg-cyan' : 'w-2 bg-white/25 hover:bg-white/45'}`}
+                        aria-label={`Show featured cocktail ${item.name}`}
+                      />
+                    ))}
+                  </div>
                 </div>
               </div>
             </motion.div>
           </div>
-        </div>
-      </section>
 
-      <section className="px-4 pb-2 md:px-8 md:pb-4">
-        <div className="mx-auto max-w-[1380px] overflow-hidden rounded-full border border-white/10 bg-white/[0.03] shadow-panel backdrop-blur-sm">
-          <motion.div
-            className="flex w-max items-center gap-4 px-4 py-3 md:px-6"
-            animate={{ x: ['0%', '-50%'] }}
-            transition={{ duration: 28, ease: 'linear', repeat: Infinity }}
-          >
-            {[...driftRailItems, ...driftRailItems].map((item, index) => (
-              <div key={`${item.name}-${index}`} className="flex items-center gap-3 rounded-full border border-white/[0.08] bg-[#09141f] px-3 py-2">
-                <div className="relative h-10 w-10 shrink-0">
-                  <Image src={item.image} alt={item.name} fill unoptimized sizes="40px" className="object-contain" />
-                </div>
-                <span className="text-[0.68rem] font-semibold uppercase tracking-[0.18em] text-cream/[0.66]">{item.name}</span>
-              </div>
-            ))}
-          </motion.div>
+          <div className="relative mt-8 grid gap-3 lg:grid-cols-4">
+            {selectorItems.map((item, index) => {
+              const isActive = activeSelector === item.id;
+
+              return (
+                <motion.button
+                  key={item.id}
+                  type="button"
+                  onClick={() => scrollToSection(item.id)}
+                  initial={{ opacity: 0, y: 18 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.4, delay: 0.08 + index * 0.04 }}
+                  whileHover={{ y: -3 }}
+                  className={`group flex items-center gap-4 rounded-[1.3rem] border px-4 py-4 text-left transition duration-300 ${isActive ? 'border-cyan/35 bg-[linear-gradient(135deg,rgba(107,231,255,0.08),rgba(9,19,27,0.96))] shadow-[0_18px_40px_rgba(3,10,18,0.3)]' : 'border-white/[0.08] bg-[#09131d]/85 hover:border-white/[0.16] hover:bg-[#0b1621]'}`}
+                  aria-pressed={isActive}
+                >
+                  <div className={`relative h-12 w-12 shrink-0 rounded-[1rem] border ${isActive ? 'border-cyan/25 bg-white/[0.08]' : 'border-white/[0.08] bg-white/[0.04]'}`}>
+                    <Image
+                      src={item.image}
+                      alt={item.label}
+                      fill
+                      unoptimized
+                      sizes="48px"
+                      className={`object-contain p-1.5 transition duration-300 ${isActive ? 'scale-[1.08]' : 'opacity-80 group-hover:scale-[1.04]'}`}
+                    />
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-[0.62rem] font-semibold uppercase tracking-[0.24em] text-cyan/[0.84]">{item.kicker}</p>
+                    <p className="mt-1 text-sm font-semibold uppercase tracking-[0.12em] text-cream md:text-[0.9rem]">{item.label}</p>
+                    <p className="mt-1 text-xs leading-5 text-cream/[0.62] md:text-[0.82rem]">{item.note}</p>
+                  </div>
+                </motion.button>
+              );
+            })}
+          </div>
         </div>
       </section>
 
       <section className="px-4 py-8 md:px-8 md:py-10">
-        <div className="mx-auto grid max-w-[1380px] gap-5 xl:grid-cols-[0.92fr_1.08fr]">
+        <div className="mx-auto grid max-w-[1380px] gap-6 xl:grid-cols-[0.95fr_1.05fr]">
           <motion.article
+            id="bar-guide"
             className="section-shell overflow-hidden p-5 md:p-6"
             initial={{ opacity: 0, y: 24 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -321,65 +407,179 @@ export function OnTapPageContent() {
               Real drafts. Bottles. Wine. The public roster.
             </h2>
             <p className="mt-5 text-base leading-7 text-cream/[0.74] md:text-lg">
-              The structure stays clean and readable, but the bar page now carries the real list with supporting product accents tied to each section. Cocktails stay hero. Beer, bottles, and wine support the read.
+              The structure stays clean and readable, but the bar page now carries the real list with stronger hierarchy, cleaner card rhythm, and much more selective imagery.
             </p>
-            <div className="mt-8 grid gap-4">
-              {tapCategories.map((category, index) => (
+            <div className="mt-10 grid gap-4">
+              {primaryCategory ? (
                 <motion.div
-                  key={category.title}
-                  className="group relative overflow-hidden rounded-[1.25rem] border border-white/[0.1] bg-[#0a1520] p-4"
+                  className="group relative overflow-hidden rounded-[1.5rem] border border-white/[0.08] bg-[#09131d] p-5 md:p-6"
                   initial={{ opacity: 0, y: 16 }}
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={viewport}
-                  transition={{ duration: 0.35, delay: index * 0.03 }}
-                  whileHover={{ y: -3 }}
+                  transition={{ duration: 0.35 }}
+                  whileHover={{ y: -4 }}
                 >
-                  <div className="absolute inset-0 bg-[linear-gradient(135deg,rgba(107,231,255,0.05),transparent_45%),linear-gradient(315deg,rgba(255,97,56,0.08),transparent_40%)] opacity-0 transition duration-300 group-hover:opacity-100" />
-                  {category.accentAsset ? (
-                    <div className="pointer-events-none absolute right-3 top-3 hidden h-16 w-16 opacity-70 transition duration-300 group-hover:-translate-y-1 group-hover:scale-[1.03] md:block">
-                      <Image src={category.accentAsset} alt={category.title} fill unoptimized sizes="64px" className="object-contain object-right-top" />
+                  <div className="absolute inset-0 bg-[linear-gradient(135deg,rgba(107,231,255,0.06),transparent_48%),radial-gradient(circle_at_92%_12%,rgba(255,97,56,0.12),transparent_24%)]" />
+                  {primaryCategory.accentAsset ? (
+                    <div className="pointer-events-none absolute right-4 top-4 hidden h-20 w-20 opacity-80 transition duration-300 group-hover:-translate-y-1 md:block">
+                      <Image src={primaryCategory.accentAsset} alt={primaryCategory.title} fill unoptimized sizes="80px" className="object-contain object-right-top" />
                     </div>
                   ) : null}
-                  <div className="relative flex items-center gap-3">
-                    <Tv2 className="h-5 w-5 text-cyan" />
-                    <h3 className="text-2xl uppercase leading-[0.96] text-cream">{category.title}</h3>
+                  <div className="relative max-w-2xl">
+                    <p className="text-[0.66rem] font-semibold uppercase tracking-[0.24em] text-cyan/[0.84]">Primary pour list</p>
+                    <div className="mt-3 flex items-center gap-3">
+                      <Tv2 className="h-5 w-5 text-cyan" />
+                      <h3 className="text-[1.75rem] uppercase leading-[0.94] text-cream md:text-[2rem]">{primaryCategory.title}</h3>
+                    </div>
+                    <p className="mt-3 max-w-2xl text-sm leading-6 text-cream/[0.72] md:text-[0.98rem]">{primaryCategory.copy}</p>
                   </div>
-                  <p className="relative mt-3 text-sm leading-6 text-cream/[0.72]">{category.copy}</p>
-                  {category.items?.length ? (
-                    category.title === 'Wine List' ? (
-                      <div className="relative mt-4 grid gap-2 sm:grid-cols-2">
-                        {category.items.map((item) => (
-                          <div key={item} className="rounded-[0.95rem] border border-white/[0.08] bg-white/[0.03] px-3 py-2 text-sm font-medium text-cream/[0.8]">
-                            {item}
-                          </div>
-                        ))}
-                      </div>
-                    ) : (
-                      <div className="relative mt-4 flex flex-wrap gap-2">
-                        {category.items.map((item) => (
-                          <span key={item} className="glass-chip">
-                            {item}
-                          </span>
-                        ))}
-                      </div>
-                    )
+                  {primaryCategory.items?.length ? (
+                    <div className="relative mt-5 flex flex-wrap gap-2.5">
+                      {primaryCategory.items.map((item) => (
+                        <span key={item} className="rounded-full border border-white/[0.08] bg-white/[0.04] px-3.5 py-2 text-[0.72rem] font-semibold uppercase tracking-[0.14em] text-cream/[0.82]">
+                          {item}
+                        </span>
+                      ))}
+                    </div>
                   ) : null}
-                  {category.assetCluster?.length ? (
-                    <div className="relative mt-4 hidden items-end gap-3 md:flex">
-                      {category.assetCluster.map((asset) => (
-                        <div key={asset} className="relative h-14 w-12 opacity-65 transition duration-300 group-hover:-translate-y-1 group-hover:opacity-90">
-                          <Image src={asset} alt={category.title} fill unoptimized sizes="48px" className="object-contain object-bottom" />
+                  {primaryCategory.assetCluster?.length ? (
+                    <div className="relative mt-6 hidden items-end gap-3 md:flex">
+                      {primaryCategory.assetCluster.slice(0, 2).map((asset) => (
+                        <div key={asset} className="relative h-16 w-14 opacity-72 transition duration-300 group-hover:-translate-y-1 group-hover:opacity-95">
+                          <Image src={asset} alt={primaryCategory.title} fill unoptimized sizes="56px" className="object-contain object-bottom" />
                         </div>
                       ))}
                     </div>
                   ) : null}
                 </motion.div>
-              ))}
+              ) : null}
+
+              <div className="grid gap-4 lg:grid-cols-[1.06fr_0.94fr]">
+                {bottleCategory ? (
+                  <motion.div
+                    className="group relative overflow-hidden rounded-[1.35rem] border border-white/[0.08] bg-[#0a1520] p-5"
+                    initial={{ opacity: 0, y: 16 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={viewport}
+                    transition={{ duration: 0.35, delay: 0.03 }}
+                    whileHover={{ y: -3 }}
+                  >
+                    {bottleCategory.accentAsset ? (
+                      <div className="pointer-events-none absolute bottom-3 right-3 hidden h-16 w-12 opacity-75 md:block">
+                        <Image src={bottleCategory.accentAsset} alt={bottleCategory.title} fill unoptimized sizes="48px" className="object-contain object-bottom" />
+                      </div>
+                    ) : null}
+                    <div className="relative flex items-center gap-3">
+                      <Tv2 className="h-5 w-5 text-cyan" />
+                      <h3 className="text-2xl uppercase leading-[0.96] text-cream">{bottleCategory.title}</h3>
+                    </div>
+                    <p className="relative mt-3 max-w-xl text-sm leading-6 text-cream/[0.72]">{bottleCategory.copy}</p>
+                    {bottleCategory.items?.length ? (
+                      <div className="relative mt-4 flex flex-wrap gap-2">
+                        {bottleCategory.items.map((item) => (
+                          <span key={item} className="glass-chip">
+                            {item}
+                          </span>
+                        ))}
+                      </div>
+                    ) : null}
+                    {bottleCategory.assetCluster?.length ? (
+                      <div className="relative mt-5 hidden items-end gap-3 md:flex">
+                        {bottleCategory.assetCluster.slice(0, 2).map((asset) => (
+                          <div key={asset} className="relative h-12 w-10 opacity-65 transition duration-300 group-hover:-translate-y-1 group-hover:opacity-90">
+                            <Image src={asset} alt={bottleCategory.title} fill unoptimized sizes="40px" className="object-contain object-bottom" />
+                          </div>
+                        ))}
+                      </div>
+                    ) : null}
+                  </motion.div>
+                ) : null}
+
+                <div className="grid gap-4">
+                  {nonAlcoholicCategory ? (
+                    <motion.div
+                      className="group relative overflow-hidden rounded-[1.3rem] border border-white/[0.08] bg-[#0a1520] p-5"
+                      initial={{ opacity: 0, y: 16 }}
+                      whileInView={{ opacity: 1, y: 0 }}
+                      viewport={viewport}
+                      transition={{ duration: 0.35, delay: 0.05 }}
+                      whileHover={{ y: -3 }}
+                    >
+                      {nonAlcoholicCategory.accentAsset ? (
+                        <div className="pointer-events-none absolute bottom-3 right-3 hidden h-16 w-10 opacity-80 md:block">
+                          <Image src={nonAlcoholicCategory.accentAsset} alt={nonAlcoholicCategory.title} fill unoptimized sizes="40px" className="object-contain object-bottom" />
+                        </div>
+                      ) : null}
+                      <div className="relative flex items-center gap-3">
+                        <Tv2 className="h-5 w-5 text-cyan" />
+                        <h3 className="text-xl uppercase leading-[0.96] text-cream">{nonAlcoholicCategory.title}</h3>
+                      </div>
+                      <p className="relative mt-3 text-sm leading-6 text-cream/[0.72]">{nonAlcoholicCategory.copy}</p>
+                      {nonAlcoholicCategory.items?.length ? (
+                        <div className="relative mt-4 flex flex-wrap gap-2">
+                          {nonAlcoholicCategory.items.map((item) => (
+                            <span key={item} className="glass-chip">
+                              {item}
+                            </span>
+                          ))}
+                        </div>
+                      ) : null}
+                    </motion.div>
+                  ) : null}
+
+                  {seasonalCategory ? (
+                    <motion.div
+                      className="overflow-hidden rounded-[1.3rem] border border-white/[0.08] bg-[linear-gradient(135deg,#0a1520,#0b1a27)] p-5"
+                      initial={{ opacity: 0, y: 16 }}
+                      whileInView={{ opacity: 1, y: 0 }}
+                      viewport={viewport}
+                      transition={{ duration: 0.35, delay: 0.07 }}
+                      whileHover={{ y: -3 }}
+                    >
+                      <p className="text-[0.64rem] font-semibold uppercase tracking-[0.24em] text-cyan/[0.84]">Seasonal watch</p>
+                      <h3 className="mt-3 text-xl uppercase leading-[0.96] text-cream">{seasonalCategory.title}</h3>
+                      <p className="mt-3 text-sm leading-6 text-cream/[0.68]">{seasonalCategory.copy}</p>
+                    </motion.div>
+                  ) : null}
+                </div>
+              </div>
+
+              {wineCategory ? (
+                <motion.div
+                  className="group relative overflow-hidden rounded-[1.35rem] border border-white/[0.08] bg-[#0a1520] p-5 md:p-6"
+                  initial={{ opacity: 0, y: 16 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={viewport}
+                  transition={{ duration: 0.35, delay: 0.09 }}
+                  whileHover={{ y: -3 }}
+                >
+                  {wineCategory.accentAsset ? (
+                    <div className="pointer-events-none absolute right-4 top-4 hidden h-16 w-14 opacity-75 md:block">
+                      <Image src={wineCategory.accentAsset} alt={wineCategory.title} fill unoptimized sizes="56px" className="object-contain object-right-top" />
+                    </div>
+                  ) : null}
+                  <div className="relative flex items-center gap-3">
+                    <Tv2 className="h-5 w-5 text-cyan" />
+                    <h3 className="text-2xl uppercase leading-[0.96] text-cream">{wineCategory.title}</h3>
+                  </div>
+                  <p className="relative mt-3 max-w-xl text-sm leading-6 text-cream/[0.72]">{wineCategory.copy}</p>
+                  {wineCategory.items?.length ? (
+                    <div className="relative mt-5 grid gap-2 sm:grid-cols-2">
+                      {wineCategory.items.map((item) => (
+                        <div key={item} className="rounded-[0.95rem] border border-white/[0.08] bg-white/[0.03] px-3 py-2 text-sm font-medium text-cream/[0.82]">
+                          {item}
+                        </div>
+                      ))}
+                    </div>
+                  ) : null}
+                </motion.div>
+              ) : null}
             </div>
           </motion.article>
 
           <div className="grid gap-5">
             <motion.article
+              id="cocktail-guide"
               className="section-shell overflow-hidden p-5 md:p-6"
               initial={{ opacity: 0, y: 24 }}
               whileInView={{ opacity: 1, y: 0 }}
@@ -387,87 +587,151 @@ export function OnTapPageContent() {
               transition={{ duration: 0.45, delay: 0.04 }}
             >
               <p className="eyebrow">Coastal cocktails</p>
-              <div className="mt-4 flex flex-col gap-5 md:flex-row md:items-end md:justify-between">
-                <div className="max-w-2xl">
-                  <h2 className="text-4xl uppercase leading-[0.94] text-cream md:text-5xl">Cocktails lead. Everything else supports.</h2>
-                  <p className="mt-4 text-base leading-7 text-cream/[0.74]">
-                    One featured cocktail carries the hero energy. The rest of the list stays readable, tactile, and lightly animated with each drink tied to its own transparent asset.
-                  </p>
-                </div>
-                <div className="hidden md:block">
-                  <div className="relative h-36 w-28 opacity-90">
-                    <Image src={featuredCocktail.image} alt={featuredCocktail.name} fill unoptimized sizes="112px" className="object-contain object-right-bottom" />
-                  </div>
-                </div>
+              <div className="mt-4 max-w-2xl">
+                <h2 className="text-4xl uppercase leading-[0.94] text-cream md:text-5xl">Cocktails lead. Everything else supports.</h2>
+                <p className="mt-4 text-base leading-7 text-cream/[0.74]">
+                  The hero still belongs to cocktails, but the section now separates signature pours from the rest of the roster so the page scans cleaner and feels less repetitive.
+                </p>
               </div>
-              <div className="mt-6 grid gap-4 md:grid-cols-2">
-                {cocktails.map((item, index) => (
+
+              <div className="mt-8 grid gap-4 lg:grid-cols-2">
+                {signatureCocktailItems.map((item, index) => (
                   <motion.div
                     key={item.name}
-                    className="group relative overflow-hidden rounded-[1.2rem] border border-white/[0.1] bg-[#0a1520] p-4 pr-24"
+                    className="group relative overflow-hidden rounded-[1.35rem] border border-white/[0.08] bg-[#0a1520] p-5 pr-28"
                     initial={{ opacity: 0, y: 18 }}
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={viewport}
-                    transition={{ duration: 0.35, delay: index * 0.025 }}
+                    transition={{ duration: 0.35, delay: index * 0.03 }}
                     whileHover={{ y: -4 }}
                   >
                     <div
-                      className="absolute -bottom-6 right-0 h-24 w-24 rounded-full blur-2xl transition duration-300 group-hover:scale-110"
+                      className="absolute -bottom-8 right-0 h-28 w-28 rounded-full blur-2xl transition duration-300 group-hover:scale-110"
                       style={{ backgroundColor: cocktailAccentBackgrounds[item.accent || 'cyan'] || cocktailAccentBackgrounds.cyan }}
                     />
                     {item.asset ? (
-                      <div className="pointer-events-none absolute bottom-0 right-1 h-24 w-20 opacity-45 transition duration-300 group-hover:-translate-y-1 group-hover:opacity-70">
-                        <Image src={item.asset} alt={item.name} fill unoptimized sizes="80px" className="object-contain object-bottom-right" />
+                      <div className="pointer-events-none absolute bottom-0 right-2 h-28 w-24 opacity-58 transition duration-300 group-hover:-translate-y-1 group-hover:opacity-78">
+                        <Image src={item.asset} alt={item.name} fill unoptimized sizes="96px" className="object-contain object-bottom-right" />
                       </div>
                     ) : null}
-                    <div className="relative flex items-center gap-3">
+                    <p className="relative text-[0.64rem] font-semibold uppercase tracking-[0.24em] text-cyan/[0.84]">Signature pour 0{index + 1}</p>
+                    <div className="relative mt-3 flex items-center gap-3">
                       <Martini className="h-4 w-4 text-cyan" />
-                      <h3 className="text-xl uppercase leading-[0.96] text-cream">{item.name}</h3>
+                      <h3 className="text-[1.45rem] uppercase leading-[0.94] text-cream">{item.name}</h3>
                     </div>
-                    <p className="relative mt-3 text-sm leading-6 text-cream/[0.72]">{item.build}</p>
+                    <p className="relative mt-3 max-w-[18rem] text-sm leading-6 text-cream/[0.72]">{item.build}</p>
+                    <p className="relative mt-3 max-w-[17rem] text-sm leading-6 text-cream/[0.58]">{featuredCocktailNotes.get(item.name) ?? 'House-built cocktail with a brighter finish and cleaner structure.'}</p>
                   </motion.div>
                 ))}
+              </div>
+
+              <div className="mt-8 rounded-[1.35rem] border border-white/[0.08] bg-[#09131d] p-5 md:p-6">
+                <div className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
+                  <div>
+                    <p className="text-[0.64rem] font-semibold uppercase tracking-[0.24em] text-cyan/[0.84]">Full roster</p>
+                    <h3 className="mt-3 text-2xl uppercase leading-[0.94] text-cream md:text-[2rem]">Everything else on the board.</h3>
+                  </div>
+                  <p className="max-w-md text-sm leading-6 text-cream/[0.62]">Secondary pours stay text-led for faster scanning. That keeps the section premium without turning every row into another thumbnail card.</p>
+                </div>
+
+                <div className="mt-6 grid gap-3 sm:grid-cols-2">
+                  {secondaryCocktailItems.map((item, index) => (
+                    <motion.div
+                      key={item.name}
+                      className="rounded-[1.05rem] border border-white/[0.08] bg-white/[0.03] px-4 py-4"
+                      initial={{ opacity: 0, y: 14 }}
+                      whileInView={{ opacity: 1, y: 0 }}
+                      viewport={viewport}
+                      transition={{ duration: 0.3, delay: index * 0.02 }}
+                      whileHover={{ y: -2 }}
+                    >
+                      <div className="flex items-start gap-3">
+                        <span className="mt-1 h-2 w-2 shrink-0 rounded-full bg-cyan/80" />
+                        <div>
+                          <h4 className="text-[1rem] font-semibold uppercase leading-[0.98] text-cream">{item.name}</h4>
+                          <p className="mt-2 text-sm leading-6 text-cream/[0.68]">{item.build}</p>
+                        </div>
+                      </div>
+                    </motion.div>
+                  ))}
+                </div>
               </div>
             </motion.article>
 
             <motion.article
+              id="happy-hour-guide"
               className="section-shell overflow-hidden p-5 md:p-6"
               initial={{ opacity: 0, y: 24 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={viewport}
               transition={{ duration: 0.45, delay: 0.08 }}
             >
-              <p className="eyebrow">Happy hour</p>
-              <div className="mt-4 flex flex-col gap-5 md:flex-row md:items-start md:justify-between">
-                <div>
-                  <p className="text-base leading-7 text-cream/[0.74]">Daily until 7pm.</p>
-                  <p className="mt-2 max-w-xl text-sm leading-6 text-cream/[0.66]">
-                    This block carries a little more energy than the rest of the page, but it still stays structured and readable.
+              <div className="flex flex-col gap-5 md:flex-row md:items-start md:justify-between">
+                <div className="max-w-2xl">
+                  <p className="eyebrow">Happy hour</p>
+                  <h2 className="mt-4 text-3xl uppercase leading-[0.94] text-cream md:text-[2.5rem]">Daily until 7pm. Enough reason to pull up early.</h2>
+                  <p className="mt-4 text-base leading-7 text-cream/[0.72]">
+                    This block gets a little more lift than the rest of the lower page. Drinks stay easy to read, food stays grouped, and the whole thing lands like an actual move instead of a leftover utility module.
                   </p>
                 </div>
-                <div className="hidden items-end gap-3 md:flex">
+                <div className="flex items-end gap-3 md:pt-2">
                   {happyHourAssets.map((item) => (
-                    <div key={item.name} className="relative h-20 w-14 opacity-70">
-                      <Image src={item.image} alt={item.name} fill unoptimized sizes="56px" className="object-contain object-bottom" />
+                    <div key={item.name} className="relative h-20 w-14 opacity-78 md:h-24 md:w-16">
+                      <Image src={item.image} alt={item.name} fill unoptimized sizes="64px" className="object-contain object-bottom" />
                     </div>
                   ))}
                 </div>
               </div>
-              <div className="mt-6 grid gap-3 sm:grid-cols-2">
-                {happyHourItems.map((item, index) => (
-                  <motion.div
-                    key={item.title}
-                    className="rounded-[1.2rem] border border-white/[0.1] bg-[#0a1520] p-4"
-                    initial={{ opacity: 0, y: 14 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={viewport}
-                    transition={{ duration: 0.35, delay: index * 0.03 }}
-                    whileHover={{ y: -3 }}
-                  >
-                    <h3 className="text-lg uppercase leading-[0.96] text-cream">{item.title}</h3>
-                    <p className="mt-2 text-sm leading-6 text-cream/[0.72]">{item.copy}</p>
-                  </motion.div>
-                ))}
+
+              <div className="mt-6 flex flex-col gap-3 sm:flex-row">
+                <Link href={happyHourPageHref} className="cta-primary">
+                  SEE HAPPY HOUR →
+                </Link>
+                <div className="rounded-full border border-white/[0.08] bg-white/[0.04] px-4 py-3 text-[0.72rem] font-semibold uppercase tracking-[0.18em] text-cream/[0.62]">
+                  Daily window · Drinks + food
+                </div>
+              </div>
+
+              <div className="mt-7 grid gap-4 lg:grid-cols-2">
+                <div className="rounded-[1.3rem] border border-white/[0.08] bg-[#0a1520] p-5">
+                  <p className="text-[0.64rem] font-semibold uppercase tracking-[0.24em] text-cyan/[0.84]">Drink deals</p>
+                  <div className="mt-4 grid gap-3">
+                    {happyHourDrinkItems.map((item, index) => (
+                      <motion.div
+                        key={item.title}
+                        className="rounded-[1rem] border border-white/[0.08] bg-white/[0.03] px-4 py-4"
+                        initial={{ opacity: 0, y: 14 }}
+                        whileInView={{ opacity: 1, y: 0 }}
+                        viewport={viewport}
+                        transition={{ duration: 0.32, delay: index * 0.03 }}
+                        whileHover={{ y: -2 }}
+                      >
+                        <h3 className="text-lg uppercase leading-[0.96] text-cream">{item.title}</h3>
+                        <p className="mt-2 text-sm leading-6 text-cream/[0.72]">{item.copy}</p>
+                      </motion.div>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="rounded-[1.3rem] border border-white/[0.08] bg-[#0a1520] p-5">
+                  <p className="text-[0.64rem] font-semibold uppercase tracking-[0.24em] text-cyan/[0.84]">Food deals</p>
+                  <div className="mt-4 grid gap-3">
+                    {happyHourFoodItems.map((item, index) => (
+                      <motion.div
+                        key={item.title}
+                        className="rounded-[1rem] border border-white/[0.08] bg-white/[0.03] px-4 py-4"
+                        initial={{ opacity: 0, y: 14 }}
+                        whileInView={{ opacity: 1, y: 0 }}
+                        viewport={viewport}
+                        transition={{ duration: 0.32, delay: index * 0.03 }}
+                        whileHover={{ y: -2 }}
+                      >
+                        <h3 className="text-lg uppercase leading-[0.96] text-cream">{item.title}</h3>
+                        <p className="mt-2 text-sm leading-6 text-cream/[0.72]">{item.copy}</p>
+                      </motion.div>
+                    ))}
+                  </div>
+                </div>
               </div>
             </motion.article>
           </div>
