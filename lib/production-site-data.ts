@@ -44,11 +44,26 @@ export type TapCategory = {
   title: string;
   copy: string;
   items?: string[];
+  accentAsset?: string;
+  assetCluster?: string[];
 };
 
 export type Cocktail = {
   name: string;
   build: string;
+  asset?: string;
+  accent?: string;
+};
+
+export type FeaturedDrinkAsset = {
+  name: string;
+  image: string;
+  note: string;
+};
+
+export type CategoryAssetRail = {
+  title: string;
+  items: { name: string; image: string }[];
 };
 
 export type EventItem = {
@@ -646,50 +661,227 @@ export const menuSections: MenuSection[] = [
 
 export const tapCategories: TapCategory[] = [
   {
-    title: 'Draft Beers',
-    copy: 'Rotating selection of local and domestic drafts.'
+    title: 'On Tap Now',
+    copy: 'Current draft lineup across easy drinkers, hazy pours, local staples, and Guinness on nitro.',
+    items: [
+      '805 Blonde',
+      'Big Blue Van',
+      'Dos Equis',
+      'Coors Light',
+      'Pizza Port California Honey',
+      'Hazy Little Thing IPA',
+      'Voodoo Ranger Juicy Haze IPA',
+      'Michelob Ultra',
+      'Lagunitas IPA',
+      'Modelo Especial',
+      'Four Peaks Wow Wheat',
+      'Guinness'
+    ],
+    accentAsset: '/alcohol served/tap/805 Blonde.svg',
+    assetCluster: [
+      '/alcohol served/tap/Big blue van.svg',
+      '/alcohol served/tap/Voodoo Ranger Juicy Haze IPA.svg',
+      '/alcohol served/tap/Guinness.svg'
+    ]
   },
   {
-    title: 'Domestic Bottles',
-    copy: 'The domestic lineup on the public menu right now.',
-    items: ['Bud Light', 'Budweiser', 'Coors Light', 'Miller Lite']
+    title: 'Bottles & Cans',
+    copy: 'Cold bottle and can lineup covering domestic, import, malt, tea, and canned refreshers.',
+    items: [
+      'Coors Light',
+      'Bud Light',
+      'Corona',
+      'Heineken',
+      'Michelob Ultra',
+      'Miller Lite',
+      'Modelo',
+      'Stella',
+      'Ginger Beer',
+      'White Claw',
+      'Twisted Tea',
+      'Kilt Lifter'
+    ],
+    accentAsset: '/alcohol served/bottles and cans/Modelo.svg',
+    assetCluster: [
+      '/alcohol served/bottles and cans/Coors Light.svg',
+      '/alcohol served/bottles and cans/Stella Artois.svg',
+      '/alcohol served/bottles and cans/White Claw.svg'
+    ]
   },
   {
-    title: 'Import/Craft Bottles',
-    copy: 'Import and craft bottles called out on the current public menu.',
-    items: ['Corona', 'Modelo', 'Heineken', 'Blue Moon', 'and more']
+    title: 'Non-Alcoholic Beer',
+    copy: 'Zero-proof beer options available when you want the cold pour without the alcohol.',
+    items: ['Heineken 0.0', 'Michelob Ultra'],
+    accentAsset: '/alcohol served/nonalcoholic/heineken 0.0 zero.svg',
+    assetCluster: ['/alcohol served/nonalcoholic/Michelob Ultra Zero.svg']
   },
   {
-    title: 'House Wine',
-    copy: 'House pours currently listed online.',
-    items: ['Chardonnay', 'Pinot Grigio', 'Cabernet', 'Merlot']
+    title: 'Wine List',
+    copy: 'Structured wine lineup across reds, whites, rosé, and sparkling pours.',
+    items: [
+      'Merlot',
+      'Red Blend',
+      'Pinot Noir',
+      'Cabernet',
+      'Chardonnay',
+      'Sauv Blanc',
+      'Moscato',
+      'Pinot Grigio',
+      'Rosé',
+      'Champagne',
+      'Sparkling Wine'
+    ],
+    accentAsset: '/alcohol served/wine/just a wine glass.svg',
+    assetCluster: [
+      '/alcohol served/wine/merlot.svg',
+      '/alcohol served/wine/chardonnay.svg',
+      '/alcohol served/wine/champagne.svg'
+    ]
   },
   {
-    title: 'Premium Wine',
-    copy: 'Ask your server for the premium selection.'
-  },
-  {
-    title: 'Soft Drinks',
-    copy: 'Non-alcoholic lineup currently listed online.',
-    items: ['Coke', 'Diet Coke', 'Sprite', 'Lemonade', 'Iced Tea']
+    title: 'Seasonal Craft Beer',
+    copy: 'Ask about the current seasonal craft beer options when you pull up.'
   }
 ];
 
 export const cocktails: Cocktail[] = [
-  { name: 'Driftwood Margarita', build: 'Tequila, triple sec, fresh lime, salt rim' },
-  { name: 'Pier Punch', build: 'Rum, coconut, pineapple, orange juice, grenadine' },
-  { name: 'Beach Cruiser', build: 'Vodka, peach schnapps, cranberry, orange juice' },
-  { name: 'Mango Tango', build: 'Mango rum, lime, mango puree, tajin rim' },
-  { name: 'Sunset Sangria', build: 'Red or white wine, brandy, fresh fruit' },
-  { name: 'Mojito', build: 'White rum, fresh mint, lime, soda' },
-  { name: 'Paloma', build: 'Tequila, grapefruit, lime, salt rim' },
-  { name: 'Long Island', build: 'Vodka, gin, rum, tequila, triple sec, sour, cola' },
-  { name: 'Miami Vice', build: 'Half piña colada, half strawberry daiquiri' },
-  { name: 'Piña Colada', build: 'Rum, coconut cream, pineapple juice' },
-  { name: 'Strawberry Daiquiri', build: 'Rum, strawberry, lime, blended' },
-  { name: 'Blue Hawaiian', build: 'Rum, blue curaçao, coconut, pineapple' },
-  { name: 'Tequila Sunrise', build: 'Tequila, orange juice, grenadine' },
-  { name: 'Bay Breeze', build: 'Vodka, cranberry, pineapple juice' }
+  {
+    name: 'BOURBON ISLAND ELIXER',
+    build: 'Pineapple Juice / Orange Juice / Coconut Cream / Nutmeg Shavings',
+    asset: '/alcohol served/production cocktail/BOURBON ISLAND ELIXER.svg',
+    accent: 'amber'
+  },
+  {
+    name: 'TAI-ME UP',
+    build: 'White Rum / Gold Rum / Triple Sec / Orgeat / Lime Juice',
+    asset: '/alcohol served/production cocktail/TAI-ME UP.svg',
+    accent: 'cyan'
+  },
+  {
+    name: 'MIRROR MARGARITA',
+    build: 'Sec / Lime Juice / Agave Nectar',
+    asset: '/alcohol served/production cocktail/MIRROR MARGARITA.svg',
+    accent: 'cyan'
+  },
+  {
+    name: 'LAVENDER LAGOON',
+    build: 'Tequila / Lime Juice / Cassis Liquer / Zero Sugar Monster',
+    asset: '/alcohol served/production cocktail/LAVENDER LAGOON.svg',
+    accent: 'violet'
+  },
+  {
+    name: 'CRIMSON PEACH',
+    build: 'Vodka / Peach Schnapps / Cranberry / Lime Juice',
+    asset: '/alcohol served/production cocktail/CRIMSON PEACH.svg',
+    accent: 'rose'
+  },
+  {
+    name: 'BEACHSIDE OLD FASHIONED',
+    build: 'Banana Liquer / Tiki Bitters',
+    asset: '/alcohol served/production cocktail/BEACHSIDE OLD FASHIONED.svg',
+    accent: 'amber'
+  },
+  {
+    name: 'SEASIDE SPRIG',
+    build: 'White Rum / Fresh Mint / Simple Syrup / Lime Juice / Soda Water',
+    asset: '/alcohol served/production cocktail/SEASIDE SPRIG.svg',
+    accent: 'mint'
+  },
+  {
+    name: 'BECHALADA',
+    build: 'Michelada Mix / Lager Beer / Hot Sauce / Lime Juice',
+    asset: '/alcohol served/production cocktail/BECHALADA.svg',
+    accent: 'amber'
+  },
+  {
+    name: 'SURFSIDE SIPPER',
+    build: 'Rum / Coconut Cream / Pineapple Juice / Lime / Triple Sec',
+    asset: '/alcohol served/production cocktail/SURFSIDE SIPPER.svg',
+    accent: 'cyan'
+  },
+  {
+    name: 'CRYSTAL COASTLINE',
+    build: 'Gin / Lime Juice / Simple Syrup',
+    asset: '/alcohol served/production cocktail/CRYSTAL COASTLINE.svg',
+    accent: 'ice'
+  },
+  {
+    name: 'ISLAND MULE',
+    build: 'Vodka / Malibu / Ginger Beer / Pineapple Juice / Lime Juice',
+    asset: '/alcohol served/production cocktail/ISLAND MULE.svg',
+    accent: 'amber'
+  },
+  {
+    name: 'PURPLE MICRODOT',
+    build: 'White Rum / Infused Simple Syrup / Lime Juice',
+    asset: '/alcohol served/production cocktail/PURPLE MICRODOT.svg',
+    accent: 'violet'
+  },
+  {
+    name: 'COASTAL COLLINS',
+    build: 'Cucumber Vodka / Simple Syrup / Cucumber Lime / Soda Water',
+    asset: '/alcohol served/production cocktail/COASTAL COLLINS.svg',
+    accent: 'mint'
+  },
+  {
+    name: 'PARADISE PUCKER UP',
+    build: 'Vodka / Triple Sec / Simple Syrup / Lemon Juice',
+    asset: '/alcohol served/production cocktail/PARADISE PUCKER UP.svg',
+    accent: 'yellow'
+  }
+];
+
+export const featuredCocktails: FeaturedDrinkAsset[] = [
+  {
+    name: 'BOURBON ISLAND ELIXER',
+    image: '/alcohol served/production cocktail/BOURBON ISLAND ELIXER.svg',
+    note: 'Coconut-rich tropical build with warm spice finish.'
+  },
+  {
+    name: 'LAVENDER LAGOON',
+    image: '/alcohol served/production cocktail/LAVENDER LAGOON.svg',
+    note: 'Neon-toned tequila profile with a sharp citrus edge.'
+  },
+  {
+    name: 'CRIMSON PEACH',
+    image: '/alcohol served/production cocktail/CRIMSON PEACH.svg',
+    note: 'Bright fruit-forward vodka build with a crisp lime close.'
+  },
+  {
+    name: 'ISLAND MULE',
+    image: '/alcohol served/production cocktail/ISLAND MULE.svg',
+    note: 'Ginger beer lift layered with pineapple and lime.'
+  }
+];
+
+export const onTapAssetRails: CategoryAssetRail[] = [
+  {
+    title: 'Draft rail',
+    items: [
+      { name: '805 Blonde', image: '/alcohol served/tap/805 Blonde.svg' },
+      { name: 'Modelo Especial', image: '/alcohol served/tap/Modelo.svg' },
+      { name: 'Big Blue Van', image: '/alcohol served/tap/Big blue van.svg' },
+      { name: 'Lagunitas IPA', image: '/alcohol served/tap/lagunitas ipa.svg' }
+    ]
+  },
+  {
+    title: 'Bottle rail',
+    items: [
+      { name: 'Coors Light', image: '/alcohol served/bottles and cans/Coors Light.svg' },
+      { name: 'Modelo', image: '/alcohol served/bottles and cans/Modelo.svg' },
+      { name: 'Stella', image: '/alcohol served/bottles and cans/Stella Artois.svg' },
+      { name: 'White Claw', image: '/alcohol served/bottles and cans/White Claw.svg' }
+    ]
+  },
+  {
+    title: 'Wine rail',
+    items: [
+      { name: 'Cabernet', image: '/alcohol served/wine/cabernet.svg' },
+      { name: 'Rosé', image: '/alcohol served/wine/Rose.svg' },
+      { name: 'Chardonnay', image: '/alcohol served/wine/chardonnay.svg' },
+      { name: 'Sparkling Wine', image: '/alcohol served/wine/prosecco.svg' }
+    ]
+  }
 ];
 
 export const happyHourItems: EventItem[] = [
