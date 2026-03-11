@@ -100,37 +100,39 @@ export function SiteNav() {
                     Jump to the page you need.
                   </p>
                 </div>
-                <div className="grid gap-3">
-                  {navLinks.map((item, index) => (
-                    <motion.a
-                      key={item.href}
-                      href={item.href}
-                      onClick={() => setOpen(false)}
-                      className="group rounded-[1.5rem] border border-white/[0.08] bg-white/[0.04] px-5 py-4 transition duration-300 hover:border-cyan/[0.35] hover:bg-white/[0.06]"
-                      initial={{ opacity: 0, x: 24 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      exit={{ opacity: 0, x: 16 }}
-                      transition={{ delay: 0.06 + index * 0.05, duration: 0.32 }}
-                    >
-                      <div className="flex items-center justify-between gap-4">
-                        <div>
-                          <div className="text-2xl uppercase tracking-[0.06em] text-cream transition duration-300 group-hover:text-cyan">
-                            {item.label}
+                <div className="flex min-h-0 flex-1 flex-col gap-3">
+                  <div className="grid gap-3">
+                    {navLinks.map((item, index) => (
+                      <motion.a
+                        key={item.href}
+                        href={item.href}
+                        onClick={() => setOpen(false)}
+                        className="group rounded-[1.5rem] border border-white/[0.08] bg-white/[0.04] px-5 py-4 transition duration-300 hover:border-cyan/[0.35] hover:bg-white/[0.06]"
+                        initial={{ opacity: 0, x: 24 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        exit={{ opacity: 0, x: 16 }}
+                        transition={{ delay: 0.06 + index * 0.05, duration: 0.32 }}
+                      >
+                        <div className="flex items-center justify-between gap-4">
+                          <div>
+                            <div className="text-2xl uppercase tracking-[0.06em] text-cream transition duration-300 group-hover:text-cyan">
+                              {item.label}
+                            </div>
+                            <div className="mt-1 text-sm text-cream/[0.58]">{item.note}</div>
                           </div>
-                          <div className="mt-1 text-sm text-cream/[0.58]">{item.note}</div>
+                          <div className="h-px w-12 bg-gradient-to-r from-white/0 via-white/40 to-white/0 transition duration-300 group-hover:via-cyan/70" />
                         </div>
-                        <div className="h-px w-12 bg-gradient-to-r from-white/0 via-white/40 to-white/0 transition duration-300 group-hover:via-cyan/70" />
-                      </div>
-                    </motion.a>
-                  ))}
-                </div>
-                <div className="mt-3 grid gap-3 pb-2 md:mt-auto md:grid-cols-2">
-                  <Link href={orderPageHref} className="cta-primary text-center" onClick={() => setOpen(false)}>
-                    Order Online
-                  </Link>
-                  <Link href={directionsUrl} target="_blank" className="cta-secondary text-center" onClick={() => setOpen(false)}>
-                    Get Directions
-                  </Link>
+                      </motion.a>
+                    ))}
+                  </div>
+                  <div className="grid gap-3 pb-2 md:mt-auto md:grid-cols-2">
+                    <Link href={orderPageHref} className="cta-primary text-center" onClick={() => setOpen(false)}>
+                      Order Online
+                    </Link>
+                    <Link href={directionsUrl} target="_blank" className="cta-secondary text-center" onClick={() => setOpen(false)}>
+                      Get Directions
+                    </Link>
+                  </div>
                 </div>
               </div>
             </motion.div>

@@ -1,7 +1,10 @@
 import Link from 'next/link';
 import { SiteFooter } from '@/components/site-footer';
 import { SiteNav } from '@/components/site-nav';
-import { emailAddress, emailHref, phoneDisplay, phoneHref } from '@/lib/production-site-data';
+import { phoneDisplay, phoneHref } from '@/lib/production-site-data';
+
+const careersEmailAddress = 'careers@thedriftwoodsaz.com';
+const careersEmailHref = 'mailto:careers@thedriftwoodsaz.com';
 
 const openPositions = [
   {
@@ -74,8 +77,8 @@ export default function CareersPage() {
               </div>
               <div className="section-shell p-5">
                 <p className="text-[0.68rem] font-semibold uppercase tracking-[0.24em] text-cyan/[0.82]">EMAIL</p>
-                <Link href={emailHref} className="mt-3 block text-lg leading-7 text-cream transition duration-300 hover:text-cyan">
-                  {emailAddress}
+                <Link href={careersEmailHref} className="mt-3 block text-lg leading-7 text-cream transition duration-300 hover:text-cyan">
+                  {careersEmailAddress}
                 </Link>
               </div>
             </div>
@@ -140,7 +143,7 @@ export default function CareersPage() {
               <Link href="/careers/apply" className="cta-primary">
                 General Application
               </Link>
-              <Link href={emailHref} className="cta-secondary">
+              <Link href={careersEmailHref} className="cta-secondary">
                 Contact Us
               </Link>
             </div>
