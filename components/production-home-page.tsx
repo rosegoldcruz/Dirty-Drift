@@ -9,7 +9,6 @@ import gsap from 'gsap';
 import { CustomEase } from 'gsap/CustomEase';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { ArrowRight } from 'lucide-react';
-import { NeonSign } from './neon-sign';
 import { SiteNav } from './site-nav';
 import { SiteFooter } from './site-footer';
 import {
@@ -186,13 +185,30 @@ function HeroSection() {
       <div className="hero-vignette absolute inset-0" />
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(107,231,255,0.16),transparent_32%),linear-gradient(180deg,rgba(3,8,14,0.22),rgba(3,8,14,0.78)_58%,rgba(3,8,14,0.96))]" />
       <div className="grain-overlay absolute inset-0 opacity-40" />
+      <div className="pointer-events-none absolute right-4 top-[18%] z-10 hidden w-[clamp(260px,34vw,560px)] md:block lg:right-10 xl:right-16" data-gsap-hero-sign>
+        <motion.div
+          initial={{ opacity: 0, y: 24, scale: 0.96 }}
+          animate={{ opacity: 1, y: 0, scale: 1 }}
+          transition={heroSpring}
+          className="relative aspect-[1.2/1] w-full"
+        >
+          <Image
+            src="/official%20logos/signage.svg"
+            alt="Driftwoods sign"
+            fill
+            priority
+            sizes="(max-width: 1024px) 36vw, 560px"
+            className="object-contain object-center opacity-[0.96] drop-shadow-[0_0_22px_rgba(255,97,56,0.28)]"
+          />
+        </motion.div>
+      </div>
 
       <div className="relative mx-auto grid max-w-[1380px] gap-10 lg:grid-cols-[minmax(0,1fr)_540px] lg:items-center">
         <motion.div
           initial={{ opacity: 0, y: 24 }}
           animate={{ opacity: 1, y: 0 }}
           transition={heroSpring}
-          className="max-w-4xl"
+          className="relative z-20 max-w-4xl md:pr-[31vw] lg:pr-0"
           data-gsap-hero-copy
         >
           <div className="mt-8 max-w-3xl">
@@ -219,11 +235,20 @@ function HeroSection() {
               SEE WHAT'S ON TAP →
             </Link>
           </div>
-        </motion.div>
 
-        <div className="lg:justify-self-end" data-gsap-hero-sign>
-          <NeonSign className="mx-auto max-w-[560px]" />
-        </div>
+          <div className="mt-10 max-w-[360px] md:hidden" data-gsap-hero-sign>
+            <div className="relative aspect-[1.2/1] w-full">
+              <Image
+                src="/official%20logos/signage.svg"
+                alt="Driftwoods sign"
+                fill
+                priority
+                sizes="70vw"
+                className="object-contain object-left opacity-[0.95] drop-shadow-[0_0_18px_rgba(255,97,56,0.24)]"
+              />
+            </div>
+          </div>
+        </motion.div>
       </div>
     </section>
   );
