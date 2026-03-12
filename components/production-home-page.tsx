@@ -234,7 +234,7 @@ function HeroSection() {
             className="relative ml-auto aspect-[1.95/1] w-full max-w-[980px]"
           >
             <Image
-              src="/official%20logos/signage.svg"
+              src="/official%20logos/Hero,%20hero!.svg"
               alt="Driftwoods sign"
               fill
               priority
