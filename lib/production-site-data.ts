@@ -239,7 +239,7 @@ export const heroCards: HomeCard[] = [
     title: 'The Food',
     copy:
       'Our kitchen is scratch-built and full of flavor. Wings, ceviche, burgers, pours, and the kind of food that makes you forget you came in "just for the game."',
-    image: '/food/fffooooddd.jpg'
+    image: '/food/Chicken wings.png'
   },
   {
     title: 'The Regulars',
@@ -254,7 +254,7 @@ export const foodCards: HomeCard[] = [
     title: 'STARTERS',
     copy:
       "We do starters the way they're supposed to be done: wings with real flavor, a pretzel big enough to take over the table, and ceviche that resets expectations fast. Start somewhere. We'll take it from there.",
-    image: '/food/fffooooddd.jpg'
+    image: '/food/Tacos and Burgers.png'
   },
   {
     title: 'MAINS',

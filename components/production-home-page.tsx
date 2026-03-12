@@ -316,7 +316,7 @@ function FoodSection() {
           <div className="grid gap-0 lg:grid-cols-[1.08fr_0.92fr]">
             <div className="relative min-h-[440px] overflow-hidden">
               <Image
-                src="/food/fried%20chicken%20sandwich.jpg"
+                src="/food/Pacos and margaritas.png"
                 alt="Driftwoods food spread"
                 fill
                 sizes="(max-width: 1280px) 100vw, 50vw"
