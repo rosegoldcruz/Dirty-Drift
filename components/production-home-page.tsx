@@ -185,43 +185,25 @@ function HeroSection() {
       <div className="hero-vignette absolute inset-0" />
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(107,231,255,0.16),transparent_32%),linear-gradient(180deg,rgba(3,8,14,0.22),rgba(3,8,14,0.78)_58%,rgba(3,8,14,0.96))]" />
       <div className="grain-overlay absolute inset-0 opacity-40" />
-      <div className="pointer-events-none absolute right-0 top-[12%] z-10 hidden w-[clamp(460px,56vw,980px)] md:block lg:right-0 xl:right-2" data-gsap-hero-sign>
-        <motion.div
-          initial={{ opacity: 0, y: 24, scale: 0.96 }}
-          animate={{ opacity: 1, y: 0, scale: 1 }}
-          transition={heroSpring}
-          className="relative aspect-[1.95/1] w-full"
-        >
-          <Image
-            src="/official%20logos/signage.svg"
-            alt="Driftwoods sign"
-            fill
-            priority
-            sizes="(max-width: 1024px) 56vw, 980px"
-            className="object-contain object-center opacity-[0.99] drop-shadow-[0_0_42px_rgba(255,97,56,0.38)]"
-          />
-        </motion.div>
-      </div>
-
-      <div className="relative mx-auto grid max-w-[1380px] gap-10 lg:grid-cols-[minmax(0,1fr)_540px] lg:items-center">
+      <div className="relative z-20 mx-auto flex w-full max-w-[1380px] flex-col items-start justify-between gap-10 lg:flex-row lg:items-start">
         <motion.div
           initial={{ opacity: 0, y: 24 }}
           animate={{ opacity: 1, y: 0 }}
           transition={heroSpring}
-          className="relative z-20 max-w-[680px] md:max-w-[720px] lg:max-w-4xl lg:pr-[42vw] xl:pr-[40vw]"
+          className="relative w-full shrink-0 lg:w-1/2 max-w-2xl"
           data-gsap-hero-copy
         >
-          <div className="mt-8 max-w-3xl">
-            <h1 className="mt-4 max-w-4xl text-[3.2rem] uppercase leading-[0.9] tracking-[0.02em] text-cream md:text-[5.2rem] xl:text-[6.35rem]">
+          <div className="mt-8 w-full">
+            <h1 className="mt-4 w-full text-[3.2rem] uppercase leading-[0.9] tracking-[0.02em] text-cream md:text-[5.2rem] xl:text-[6.35rem]">
               SUNNYSLOPE’S LOUDEST SECRET HAS AN ADDRESS.
             </h1>
-            <p className="mt-6 max-w-3xl text-lg leading-8 text-cream/[0.82] md:text-xl">
+            <p className="mt-6 w-full text-lg leading-8 text-cream/[0.82] md:text-xl">
               <Link href={mapsPlaceUrl} target="_blank" className="underline decoration-cyan/60 underline-offset-4 transition duration-300 hover:text-cyan">
                 9832 N 7th Street.
               </Link>{' '}
               Three patios. A 60-ft LED wall. A kitchen that doesn't cut corners. Now you know.
             </p>
-            <p className="mt-6 max-w-3xl text-base leading-7 text-cream/[0.74] md:text-lg">
+            <p className="mt-6 w-full text-base leading-7 text-cream/[0.74] md:text-lg">
               We built Driftwoods for the nights that deserve more than "whatever's closest." Sports on screens big enough to matter, food made from scratch, and patios that keep the night moving. These are Sunnyslope’s tables. Grab a chair and join the Drift. The tide’s already rolling in.
             </p>
           </div>
@@ -234,20 +216,25 @@ function HeroSection() {
               SEE WHAT'S ON TAP →
             </Link>
           </div>
-
-          <div className="mt-10 max-w-[360px] md:hidden" data-gsap-hero-sign>
-            <div className="relative aspect-[1.2/1] w-full">
-              <Image
-                src="/official%20logos/signage.svg"
-                alt="Driftwoods sign"
-                fill
-                priority
-                sizes="70vw"
-                className="object-contain object-left opacity-[0.95] drop-shadow-[0_0_18px_rgba(255,97,56,0.24)]"
-              />
-            </div>
-          </div>
         </motion.div>
+
+        <div className="relative w-full shrink-0 lg:w-1/2" data-gsap-hero-sign>
+          <motion.div
+            initial={{ opacity: 0, y: 24, scale: 0.96 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            transition={heroSpring}
+            className="relative ml-auto aspect-[1.95/1] w-full max-w-[980px]"
+          >
+            <Image
+              src="/official%20logos/signage.svg"
+              alt="Driftwoods sign"
+              fill
+              priority
+              sizes="(max-width: 1024px) 86vw, 980px"
+              className="object-contain object-right opacity-[0.99] drop-shadow-[0_0_42px_rgba(255,97,56,0.38)]"
+            />
+          </motion.div>
+        </div>
       </div>
     </section>
   );
