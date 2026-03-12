@@ -208,7 +208,7 @@ function HeroSection() {
           initial={{ opacity: 0, y: 24 }}
           animate={{ opacity: 1, y: 0 }}
           transition={heroSpring}
-          className="relative z-20 max-w-4xl md:pr-[52vw] lg:pr-[42vw] xl:pr-[40vw]"
+          className="relative z-20 max-w-[680px] md:max-w-[720px] lg:max-w-4xl lg:pr-[42vw] xl:pr-[40vw]"
           data-gsap-hero-copy
         >
           <div className="mt-8 max-w-3xl">
