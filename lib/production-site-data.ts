@@ -188,28 +188,28 @@ export const orderProviders: OrderProvider[] = [
   {
     label: 'Toast',
     summary: 'Best for the direct Driftwoods online ordering flow.',
-    note: 'Fastest path when you already know what you want.',
+    note: 'Order direct through Toast for a fast, simple pickup experience.',
     pickupHref: primaryOrderUrl,
     deliveryHref: primaryOrderUrl
   },
   {
     label: 'DoorDash',
     summary: 'Strong delivery reach with familiar tracking.',
-    note: 'Good when the order needs to move to somebody else’s front door.',
+    note: 'Use DoorDash when you want Driftwoods delivered to your door.',
     pickupHref: 'https://www.doordash.com/store/driftwoods-sports-grill-phoenix-33095523/63380148/?pickup=true&utm_campaign=gpa',
     deliveryHref: 'https://www.doordash.com/store/driftwoods-sports-grill-phoenix-33095523/63380148/'
   },
   {
     label: 'GrubHub',
     summary: 'Useful for straight delivery comparisons and repeat customers.',
-    note: 'Good for people already ordering inside the GrubHub ecosystem.',
+    note: 'Order through Grubhub if that’s already where you place delivery orders.',
     pickupHref: 'https://www.grubhub.com/restaurant/driftwoods-sports-grill-9832-n-7th-st-phoenix/11330288?utm_source=google&utm_medium=organic&utm_campaign=place-action-link&pickup=true&rwg_token=AFd1xnFnyp1L69WN-NNAWWO3hE_-g18NMlQtwnBY8oAyEyfTKAI8J7O6UKz7N66iVJ_wvmgnNNqS1eGTprbxEjspxxNQ32JQbg%3D%3D',
     deliveryHref: 'https://www.grubhub.com/restaurant/driftwoods-sports-grill-9832-n-7th-st-phoenix/11330288'
   },
   {
     label: 'Seamless',
     summary: 'Another familiar delivery lane for people already loyal to the app.',
-    note: 'Useful when the order lives inside the Seamless account flow already.',
+    note: 'Use Seamless if you want to stay inside the app you already use.',
     pickupHref: 'https://www.seamless.com/menu/driftwoods-sports-grill-9832-n-7th-st-phoenix/11330288?utm_source=google&utm_medium=organic&utm_campaign=place-action-link&pickup=true&rwg_token=AFd1xnGiDgJHWnfSnOseaqwH3MlaN0jqhYjC93jmpA_MUbG2bVTPLbUjFmm4S7qPO6RM99V1j3NM-yv8lvksQErlAO4g91s1GA%3D%3D',
     deliveryHref: 'https://www.seamless.com/menu/driftwoods-sports-grill-9832-n-7th-st-phoenix/11330288'
   }
@@ -906,15 +906,15 @@ export const weeklySpecials: EventItem[] = [
 export const eventTracks: EventItem[] = [
   {
     title: 'Watch Parties',
-    copy: 'Big games belong on big screens. This page is built to carry the week’s biggest watch-party pull without anyone having to guess where the room will be.'
+    copy: 'Big games belong on big screens. Check here for watch parties, rivalry nights, and major matchups.'
   },
   {
     title: 'Live Music',
-    copy: 'When the music turns up, this is where the latest patio and late-night movement should land first.'
+    copy: 'Live music hits the patio on select nights. Check the calendar and catch the next set.'
   },
   {
     title: 'Recurring Community Nights',
-    copy: 'Weekly specials, themed nights, and neighborhood reasons to come back all have a home here.'
+    copy: 'From themed nights to weekly specials, this is where the neighborhood comes back for more.'
   }
 ];
 
@@ -925,7 +925,7 @@ export const gameDayMoments: EventItem[] = [
   },
   {
     title: 'Watch Parties That Feel Like Watch Parties',
-    copy: 'Rivalry games, playoff nights, UFC cards, and whatever else actually matters should land here with enough screen coverage to make the room move.'
+    copy: 'From rivalry games to UFC cards and playoff nights, this is where big sports nights get handled.'
   },
   {
     title: 'Built for Groups That Stay Awhile',

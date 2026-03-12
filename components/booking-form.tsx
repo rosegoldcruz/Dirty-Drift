@@ -66,7 +66,7 @@ export function BookingForm() {
             <span className="block text-cyan">RESERVE YOUR GAME DAY.</span>
           </h3>
           <p className="mt-4 max-w-md text-base leading-7 text-cream/[0.72]">
-            This page is built to be the central booking hub. Fill this out and send it straight to {reservationsEmail}.
+            Fill out the form, send your request, and our team will follow up with the details.
           </p>
         </div>
 

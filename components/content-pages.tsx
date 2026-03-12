@@ -1,9 +1,11 @@
 'use client';
 
 import Image from 'next/image';
-import { useEffect, useState, type ReactNode } from 'react';
+import { useEffect, useRef, useState, type ReactNode } from 'react';
 import Link from 'next/link';
 import { motion, useScroll, useTransform } from 'framer-motion';
+import gsap from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { ArrowRight, CalendarDays, Clock3, Mail, MapPin, Martini, ShoppingBag, Ticket, Truck, Tv2 } from 'lucide-react';
 import { BookingForm } from './booking-form';
 import { SiteFooter } from './site-footer';
@@ -36,6 +38,8 @@ import {
 } from '@/lib/production-site-data';
 
 const viewport = { once: true, amount: 0.18 };
+
+gsap.registerPlugin(ScrollTrigger);
 
 type FulfillmentMode = 'pickup' | 'delivery';
 
@@ -94,7 +98,7 @@ export function MenuPageContent() {
       <PageHero
         eyebrow="VIEW OUR MENU"
         title="SEE THE FULL MENU."
-        body="This is the high-contrast version of the Driftwoods menu built to stay readable in harsh light, fast on mobile, and easy to scan when someone needs an answer right now. The photo menus are still here too if you want the visual version."
+        body="The full menu is listed below in clean, easy-to-read text. Want the original menu layout too? Open the picture menus and browse the full menu pages."
         primaryCta={{ label: 'ORDER ONLINE →', href: orderPageHref }}
         secondaryCta={{ label: 'VIEW FULL PICTURE MENUS →', href: '#visual-menu' }}
       />
@@ -186,6 +190,120 @@ const cocktailAccentBackgrounds: Record<string, string> = {
   yellow: 'rgba(255, 219, 111, 0.2)'
 };
 
+function PinnedCocktailGallery({
+  items,
+  notes
+}: {
+  items: typeof cocktails;
+  notes: Map<string, string>;
+}) {
+  const sectionRef = useRef<HTMLElement | null>(null);
+  const viewportRef = useRef<HTMLDivElement | null>(null);
+  const trackRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    const section = sectionRef.current;
+    const viewportEl = viewportRef.current;
+    const track = trackRef.current;
+
+    if (!section || !viewportEl || !track) {
+      return;
+    }
+
+    const context = gsap.context(() => {
+      const getTravel = () => Math.max(0, track.scrollWidth - viewportEl.clientWidth);
+
+      gsap.set(track, { x: 0 });
+
+      gsap.to(track, {
+        x: () => -getTravel(),
+        ease: 'none',
+        scrollTrigger: {
+          trigger: section,
+          start: 'top top',
+          end: () => `+=${getTravel()}`,
+          pin: viewportEl,
+          scrub: 1.6,
+          invalidateOnRefresh: true,
+          anticipatePin: 1
+        }
+      });
+    }, section);
+
+    return () => {
+      context.revert();
+    };
+  }, [items]);
+
+  return (
+    <section ref={sectionRef} className="mt-12">
+      <div ref={viewportRef} className="overflow-hidden rounded-[1.8rem] border border-white/[0.08] bg-[#07121c] shadow-[0_30px_80px_rgba(2,8,14,0.42)]">
+        <div className="border-b border-white/[0.06] px-5 py-5 md:px-7">
+          <p className="eyebrow">Cocktail gallery</p>
+          <div className="mt-3 flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
+            <div className="max-w-2xl">
+              <h3 className="text-3xl uppercase leading-[0.92] text-cream md:text-4xl">Scroll into the full pour lineup.</h3>
+              <p className="mt-3 text-sm leading-6 text-cream/[0.68] md:text-base">
+                Keep scrolling. The gallery locks in place and runs through every cocktail poster from right to left before the page drops back into the rest of the bar menu.
+              </p>
+            </div>
+            <p className="text-[0.68rem] font-semibold uppercase tracking-[0.24em] text-cyan/[0.82]">Pinned horizontal motion</p>
+          </div>
+        </div>
+
+        <div ref={trackRef} className="flex gap-4 px-5 py-5 md:gap-6 md:px-7 md:py-7">
+          {items.map((item, index) => (
+            <article
+              key={item.name}
+              className="group relative h-[68vh] min-h-[480px] w-[78vw] shrink-0 overflow-hidden rounded-[1.6rem] border border-white/[0.08] bg-[#0a1520] md:h-[72vh] md:min-h-[560px] md:w-[34vw] xl:w-[28vw]"
+            >
+              <div
+                className="absolute inset-0 opacity-90 transition duration-500 group-hover:scale-[1.03]"
+                style={{
+                  background: `linear-gradient(180deg, rgba(4,10,17,0.12) 0%, rgba(4,10,17,0.82) 84%), radial-gradient(circle at 78% 14%, ${
+                    cocktailAccentBackgrounds[item.accent || 'cyan'] || cocktailAccentBackgrounds.cyan
+                  }, transparent 34%)`
+                }}
+              />
+              {item.asset ? (
+                <div className="absolute inset-0">
+                  <Image
+                    src={item.asset}
+                    alt={item.name}
+                    fill
+                    unoptimized
+                    sizes="(min-width: 1280px) 28vw, (min-width: 768px) 34vw, 78vw"
+                    className="object-cover object-center transition duration-500 group-hover:scale-[1.04]"
+                  />
+                </div>
+              ) : null}
+              <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(180deg,rgba(5,12,18,0.02)_0%,rgba(5,12,18,0.28)_42%,rgba(5,12,18,0.9)_100%)]" />
+              <div className="relative flex h-full flex-col justify-between p-5 md:p-6">
+                <div className="flex items-start justify-between gap-4">
+                  <span className="rounded-full border border-white/[0.12] bg-[#08131d]/82 px-3 py-1 text-[0.66rem] font-semibold uppercase tracking-[0.24em] text-cyan/[0.84] backdrop-blur-md">
+                    Cocktail {String(index + 1).padStart(2, '0')}
+                  </span>
+                  <span className="rounded-full border border-white/[0.12] bg-[#08131d]/78 px-3 py-1 text-[0.66rem] font-semibold uppercase tracking-[0.2em] text-cream/[0.62] backdrop-blur-md">
+                    Poster card
+                  </span>
+                </div>
+                <div className="max-w-[18rem] rounded-[1.3rem] border border-white/[0.08] bg-[#06101a]/80 p-4 backdrop-blur-md md:max-w-[20rem] md:p-5">
+                  <p className="text-[0.68rem] font-semibold uppercase tracking-[0.24em] text-cyan/[0.84]">House pour</p>
+                  <h4 className="mt-3 text-[1.8rem] uppercase leading-[0.92] text-cream md:text-[2.2rem]">{item.name}</h4>
+                  <p className="mt-3 text-sm leading-6 text-cream/[0.72]">{item.build}</p>
+                  <p className="mt-4 text-sm leading-6 text-cream/[0.58]">
+                    {notes.get(item.name) ?? 'House-built cocktail with a brighter finish and cleaner structure.'}
+                  </p>
+                </div>
+              </div>
+            </article>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
 export function OnTapPageContent() {
   const [featuredIndex, setFeaturedIndex] = useState(0);
   const [activeSelector, setActiveSelector] = useState('spotlight');
@@ -209,7 +327,6 @@ export function OnTapPageContent() {
   const happyHourAssets = bottleRail.slice(0, 3);
   const signatureCocktailNames = new Set(featuredCocktails.map((item) => item.name));
   const featuredCocktailNotes = new Map(featuredCocktails.map((item) => [item.name, item.note]));
-  const signatureCocktailItems = cocktails.filter((item) => signatureCocktailNames.has(item.name));
   const secondaryCocktailItems = cocktails.filter((item) => !signatureCocktailNames.has(item.name));
   const primaryCategory = tapCategories.find((category) => category.title === 'On Tap Now');
   const bottleCategory = tapCategories.find((category) => category.title === 'Bottles & Cans');
@@ -273,10 +390,10 @@ export function OnTapPageContent() {
               <p className="eyebrow">SEE WHAT'S ON TAP</p>
               <h1 className="mt-4 text-5xl uppercase leading-[0.9] text-cream md:text-7xl">SEE WHAT'S ON TAP.</h1>
               <p className="mt-6 max-w-3xl text-base leading-7 text-cream/[0.74] md:text-lg">
-                This is the bar guide: the exact draft lineup, bottles and cans, wine list, seasonal craft callout, and the current cocktail roster people should check before they pull up.
+                Drafts, bottles, cans, wine, and cocktails. If it’s behind the bar, it’s listed here.
               </p>
               <p className="mt-5 max-w-2xl text-[0.72rem] font-semibold uppercase tracking-[0.24em] text-cream/[0.48]">
-                Cocktail-led energy. Cleaner hierarchy. Fewer, stronger image moments.
+                Everything we’re pouring, all in one place.
               </p>
               <div className="mt-8 flex flex-col gap-3 sm:flex-row">
                 <Link href={orderPageHref} className="cta-primary">
@@ -328,7 +445,7 @@ export function OnTapPageContent() {
                     <div>
                       <p className="text-[0.64rem] font-semibold uppercase tracking-[0.24em] text-cyan/[0.84]">Current spotlight</p>
                       <p className="mt-2 text-sm leading-6 text-cream/[0.68]">
-                        Cocktail-led energy, tighter bar hierarchy, and fewer but stronger image moments.
+                        Everything we’re pouring, all in one place.
                       </p>
                     </div>
                     <p className="shrink-0 text-[0.64rem] font-semibold uppercase tracking-[0.24em] text-cream/[0.46]">
@@ -407,7 +524,7 @@ export function OnTapPageContent() {
               Real drafts. Bottles. Wine. The public roster.
             </h2>
             <p className="mt-5 text-base leading-7 text-cream/[0.74] md:text-lg">
-              The structure stays clean and readable, but the bar page now carries the real list with stronger hierarchy, cleaner card rhythm, and much more selective imagery.
+              From tap handles to bottles, cans, and wine, the full drink lineup starts here.
             </p>
             <div className="mt-10 grid gap-4">
               {primaryCategory ? (
@@ -588,42 +705,13 @@ export function OnTapPageContent() {
             >
               <p className="eyebrow">Coastal cocktails</p>
               <div className="mt-4 max-w-2xl">
-                <h2 className="text-4xl uppercase leading-[0.94] text-cream md:text-5xl">Cocktails lead. Everything else supports.</h2>
+                <h2 className="text-4xl uppercase leading-[0.94] text-cream md:text-5xl">Cocktail posters. Full scroll. No tiny throwaway cards.</h2>
                 <p className="mt-4 text-base leading-7 text-cream/[0.74]">
-                  The hero still belongs to cocktails, but the section now separates signature pours from the rest of the roster so the page scans cleaner and feels less repetitive.
+                  The image section now uses a pinned horizontal gallery instead of cramming poster art into undersized cards. Scroll down into it, move through the full set, then drop back into the rest of the list.
                 </p>
               </div>
 
-              <div className="mt-8 grid gap-4 lg:grid-cols-2">
-                {signatureCocktailItems.map((item, index) => (
-                  <motion.div
-                    key={item.name}
-                    className="group relative overflow-hidden rounded-[1.35rem] border border-white/[0.08] bg-[#0a1520] p-5 pr-28"
-                    initial={{ opacity: 0, y: 18 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={viewport}
-                    transition={{ duration: 0.35, delay: index * 0.03 }}
-                    whileHover={{ y: -4 }}
-                  >
-                    <div
-                      className="absolute -bottom-8 right-0 h-28 w-28 rounded-full blur-2xl transition duration-300 group-hover:scale-110"
-                      style={{ backgroundColor: cocktailAccentBackgrounds[item.accent || 'cyan'] || cocktailAccentBackgrounds.cyan }}
-                    />
-                    {item.asset ? (
-                      <div className="pointer-events-none absolute bottom-0 right-2 h-28 w-24 opacity-58 transition duration-300 group-hover:-translate-y-1 group-hover:opacity-78">
-                        <Image src={item.asset} alt={item.name} fill unoptimized sizes="96px" className="object-contain object-bottom-right" />
-                      </div>
-                    ) : null}
-                    <p className="relative text-[0.64rem] font-semibold uppercase tracking-[0.24em] text-cyan/[0.84]">Signature pour 0{index + 1}</p>
-                    <div className="relative mt-3 flex items-center gap-3">
-                      <Martini className="h-4 w-4 text-cyan" />
-                      <h3 className="text-[1.45rem] uppercase leading-[0.94] text-cream">{item.name}</h3>
-                    </div>
-                    <p className="relative mt-3 max-w-[18rem] text-sm leading-6 text-cream/[0.72]">{item.build}</p>
-                    <p className="relative mt-3 max-w-[17rem] text-sm leading-6 text-cream/[0.58]">{featuredCocktailNotes.get(item.name) ?? 'House-built cocktail with a brighter finish and cleaner structure.'}</p>
-                  </motion.div>
-                ))}
-              </div>
+              <PinnedCocktailGallery items={cocktails} notes={featuredCocktailNotes} />
 
               <div className="mt-8 rounded-[1.35rem] border border-white/[0.08] bg-[#09131d] p-5 md:p-6">
                 <div className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
@@ -631,7 +719,7 @@ export function OnTapPageContent() {
                     <p className="text-[0.64rem] font-semibold uppercase tracking-[0.24em] text-cyan/[0.84]">Full roster</p>
                     <h3 className="mt-3 text-2xl uppercase leading-[0.94] text-cream md:text-[2rem]">Everything else on the board.</h3>
                   </div>
-                  <p className="max-w-md text-sm leading-6 text-cream/[0.62]">Secondary pours stay text-led for faster scanning. That keeps the section premium without turning every row into another thumbnail card.</p>
+                  <p className="max-w-md text-sm leading-6 text-cream/[0.62]">The rest of the drink list is below, so you can see every option in one place.</p>
                 </div>
 
                 <div className="mt-6 grid gap-3 sm:grid-cols-2">
@@ -747,7 +835,7 @@ export function EventsPageContent() {
       <PageHero
         eyebrow="SEE THIS WEEK'S EVENTS"
         title="SEE THIS WEEK'S EVENTS."
-        body="This page is built to carry the weekly specials, themed nights, live music, watch parties, and recurring community traffic that keep Driftwoods moving after dark."
+        body="Weekly specials, live music, watch parties, and late-night reasons to show up all land here."
         primaryCta={{ label: 'ORDER ONLINE →', href: orderPageHref }}
         secondaryCta={{ label: 'PLAN YOUR EVENT →', href: privateBookingsHref }}
       />
@@ -829,7 +917,7 @@ export function OrderPageContent() {
       <PageHero
         eyebrow="ORDER ONLINE"
         title="PICKUP OR DELIVERY. ALL IN ONE PLACE."
-        body="This is the clean order hub. One page. Four providers. Pickup vs delivery handled without making people bounce around wondering which link does what."
+        body="Order pickup or delivery from the provider that works best for you."
         primaryCta={{ label: 'VIEW OUR MENU →', href: menuPageHref }}
         secondaryCta={{ label: 'GET DIRECTIONS →', href: directionsUrl, external: true }}
       />
@@ -948,7 +1036,7 @@ export function GameDayPageContent() {
       <PageHero
         eyebrow="GAME DAY"
         title="GAME DAY STARTS HERE."
-        body="This is the page for game day reservations, watch party traffic, and the screen setup details people are actually searching for when they need a Phoenix sports bar that can handle the night."
+        body="Reserve your table, bring the crew, and make Driftwoods your game day spot."
         primaryCta={{ label: 'RESERVE FOR GAME DAY →', href: privateBookingsHref }}
         secondaryCta={{ label: 'SEE THIS WEEK\'S EVENTS →', href: eventsPageHref }}
       />
@@ -1120,7 +1208,7 @@ export function PrivateBookingsPageContent() {
       <PageHero
         eyebrow="PLAN YOUR EVENT"
         title="PLAN YOUR EVENT. RESERVE YOUR GAME DAY."
-        body="This is the central booking hub for tables, watch parties, birthdays, work things, and full private-event inquiries. Start here, send the request straight to the team, and lock the night in."
+        body="Book tables, patios, watch parties, birthdays, and private events right here."
         primaryCta={{ label: 'SEND EMAIL REQUEST →', href: `mailto:${reservationsEmail}`, external: true }}
         secondaryCta={{ label: 'PULL UP TONIGHT →', href: mapsPlaceUrl, external: true }}
       />

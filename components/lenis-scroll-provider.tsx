@@ -15,12 +15,12 @@ type LenisScrollProviderProps = {
 export function LenisScrollProvider({ children }: LenisScrollProviderProps) {
   useEffect(() => {
     const lenis = new Lenis({
-      lerp: 0.09,
+      lerp: 0.055,
       smoothWheel: true,
-      wheelMultiplier: 0.84,
-      touchMultiplier: 1.08,
+      wheelMultiplier: 0.72,
+      touchMultiplier: 0.95,
       syncTouch: true,
-      easing: (t: number) => 1 - Math.pow(1 - t, 3.4)
+      easing: (t: number) => 1 - Math.pow(1 - t, 4.4)
     });
 
     const handleScroll = () => {
