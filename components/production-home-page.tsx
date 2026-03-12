@@ -216,6 +216,14 @@ function HeroSection() {
               SEE WHAT'S ON TAP →
             </Link>
           </div>
+
+          <Link
+            href={googleReviewsUrl}
+            target="_blank"
+            className="mt-5 inline-flex text-sm font-semibold uppercase tracking-[0.18em] text-cream/[0.72] transition duration-300 hover:text-cyan"
+          >
+            4.7 on Google · 280+ reviews →
+          </Link>
         </motion.div>
 
         <div className="relative w-full shrink-0 lg:w-1/2" data-gsap-hero-sign>
