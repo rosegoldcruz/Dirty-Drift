@@ -226,7 +226,7 @@ function HeroSection() {
           </Link>
         </motion.div>
 
-        <div className="relative w-full shrink-0 lg:w-1/2" data-gsap-hero-sign>
+        <div className="relative w-full shrink-0 lg:w-1/2 lg:pt-16 xl:pt-20" data-gsap-hero-sign>
           <motion.div
             initial={{ opacity: 0, y: 24, scale: 0.96 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
