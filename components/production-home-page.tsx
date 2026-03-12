@@ -1,9 +1,13 @@
 'use client';
 
+import { useEffect, useRef } from 'react';
 import type { ReactNode } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { motion } from 'framer-motion';
+import { motion, type Transition } from 'framer-motion';
+import gsap from 'gsap';
+import { CustomEase } from 'gsap/CustomEase';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { ArrowRight } from 'lucide-react';
 import { NeonSign } from './neon-sign';
 import { SiteNav } from './site-nav';
@@ -28,6 +32,27 @@ import {
 
 const viewport = { once: true, amount: 0.2 };
 
+const heroSpring: Transition = {
+  type: 'spring',
+  stiffness: 86,
+  damping: 18,
+  mass: 1.08
+};
+
+const revealSpring: Transition = {
+  type: 'spring',
+  stiffness: 78,
+  damping: 16,
+  mass: 1.1
+};
+
+const cardSpring: Transition = {
+  type: 'spring',
+  stiffness: 118,
+  damping: 18,
+  mass: 0.94
+};
+
 function Reveal({ children, className = '' }: { children: ReactNode; className?: string }) {
   return (
     <motion.div
@@ -35,7 +60,7 @@ function Reveal({ children, className = '' }: { children: ReactNode; className?:
       initial={{ opacity: 0, y: 28 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={viewport}
-      transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
+      transition={revealSpring}
     >
       {children}
     </motion.div>
@@ -43,8 +68,84 @@ function Reveal({ children, className = '' }: { children: ReactNode; className?:
 }
 
 export function ProductionHomePage() {
+  const pageRef = useRef<HTMLElement | null>(null);
+
+  useEffect(() => {
+    if (!pageRef.current) {
+      return;
+    }
+
+    gsap.registerPlugin(ScrollTrigger, CustomEase);
+
+    CustomEase.create('driftWeightOut', 'M0,0 C0.22,1 0.36,1 1,1');
+    CustomEase.create('driftWeightInOut', 'M0,0 C0.45,0 0.2,1 1,1');
+
+    const context = gsap.context(() => {
+      const heroTimeline = gsap.timeline({
+        scrollTrigger: {
+          trigger: '[data-gsap-section="hero"]',
+          start: 'top top',
+          end: 'bottom top',
+          scrub: 1.1
+        }
+      });
+
+      heroTimeline
+        .to('[data-gsap-hero-bg]', { yPercent: 12, scale: 1.06, ease: 'none' }, 0)
+        .to('[data-gsap-hero-copy]', { yPercent: -8, opacity: 0.92, ease: 'none' }, 0)
+        .to('[data-gsap-hero-sign]', { yPercent: -14, rotate: -1.2, ease: 'none' }, 0);
+
+      const sections = gsap.utils.toArray<HTMLElement>('[data-gsap-reveal]');
+
+      sections.forEach((section) => {
+        const headline = section.querySelector<HTMLElement>('[data-gsap-headline]');
+        const copy = section.querySelector<HTMLElement>('[data-gsap-copy]');
+        const cta = section.querySelector<HTMLElement>('[data-gsap-cta]');
+
+        const timeline = gsap.timeline({
+          scrollTrigger: {
+            trigger: section,
+            start: 'top 74%',
+            end: 'top 44%',
+            toggleActions: 'play none none reverse'
+          }
+        });
+
+        if (headline) {
+          timeline.fromTo(
+            headline,
+            { y: 36, autoAlpha: 0 },
+            { y: 0, autoAlpha: 1, duration: 0.8, ease: 'driftWeightOut' }
+          );
+        }
+
+        if (copy) {
+          timeline.fromTo(
+            copy,
+            { y: 20, autoAlpha: 0 },
+            { y: 0, autoAlpha: 1, duration: 0.64, ease: 'driftWeightInOut' },
+            '-=0.44'
+          );
+        }
+
+        if (cta) {
+          timeline.fromTo(
+            cta,
+            { y: 16, autoAlpha: 0 },
+            { y: 0, autoAlpha: 1, duration: 0.56, ease: 'driftWeightOut' },
+            '-=0.3'
+          );
+        }
+      });
+    }, pageRef);
+
+    return () => {
+      context.revert();
+    };
+  }, []);
+
   return (
-    <main id="top" className="page-shell">
+    <main id="top" className="page-shell" ref={pageRef}>
       <SiteNav />
       <HeroSection />
       <LastBarSection />
@@ -61,8 +162,8 @@ export function ProductionHomePage() {
 
 function HeroSection() {
   return (
-    <section className="relative min-h-screen overflow-hidden px-4 pb-12 pt-28 md:px-8 md:pb-14 md:pt-32">
-      <div className="absolute inset-0 hidden md:block">
+    <section className="relative min-h-screen overflow-hidden px-4 pb-12 pt-28 md:px-8 md:pb-14 md:pt-32" data-gsap-section="hero">
+      <div className="absolute inset-0 hidden md:block" data-gsap-hero-bg>
         <Image
           src="/bar%20and%20drinks/Patio%20phone.png"
           alt="Driftwoods patio at night"
@@ -72,7 +173,7 @@ function HeroSection() {
           className="object-cover object-center opacity-90 animate-slow-pan"
         />
       </div>
-      <div className="absolute inset-0 md:hidden">
+      <div className="absolute inset-0 md:hidden" data-gsap-hero-bg>
         <Image
           src="/bar%20and%20drinks/cool%20bar.jpg"
           alt="Driftwoods bar interior"
@@ -90,8 +191,9 @@ function HeroSection() {
         <motion.div
           initial={{ opacity: 0, y: 24 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.85, ease: [0.16, 1, 0.3, 1] }}
+          transition={heroSpring}
           className="max-w-4xl"
+          data-gsap-hero-copy
         >
           <div className="mt-8 max-w-3xl">
             <p className="eyebrow">DRIFTWOODS SPORTS GRILL</p>
@@ -119,7 +221,7 @@ function HeroSection() {
           </div>
         </motion.div>
 
-        <div className="lg:justify-self-end">
+        <div className="lg:justify-self-end" data-gsap-hero-sign>
           <NeonSign className="mx-auto max-w-[560px]" />
         </div>
       </div>
@@ -129,10 +231,10 @@ function HeroSection() {
 
 function LastBarSection() {
   return (
-    <section className="px-4 py-8 md:px-8 md:py-10">
+    <section className="px-4 py-8 md:px-8 md:py-10" data-gsap-reveal>
       <div className="mx-auto max-w-[1380px]">
         <Reveal className="mb-8 max-w-4xl">
-          <h2 className="mt-4 text-5xl uppercase leading-[0.92] text-cream md:text-6xl xl:text-7xl">
+          <h2 className="mt-4 text-5xl uppercase leading-[0.92] text-cream md:text-6xl xl:text-7xl" data-gsap-headline>
             THE LAST BAR YOU TRY IN SUNNYSLOPE.
           </h2>
         </Reveal>
@@ -145,7 +247,7 @@ function LastBarSection() {
               initial={{ opacity: 0, y: 26 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={viewport}
-              transition={{ duration: 0.55, delay: index * 0.06 }}
+              transition={{ ...cardSpring, delay: index * 0.06 }}
               whileHover={{ y: -8 }}
             >
               <div className="relative aspect-[1/1.16] overflow-hidden">
@@ -168,7 +270,7 @@ function LastBarSection() {
           ))}
         </div>
 
-        <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+        <div className="mt-8 flex flex-col gap-3 sm:flex-row" data-gsap-cta>
           <Link href={orderPageHref} className="cta-primary">
             ORDER ONLINE →
           </Link>
@@ -183,7 +285,7 @@ function LastBarSection() {
 
 function FoodSection() {
   return (
-    <section className="px-4 py-8 md:px-8 md:py-10" id="food">
+    <section className="px-4 py-8 md:px-8 md:py-10" id="food" data-gsap-reveal>
       <div className="mx-auto grid max-w-[1380px] gap-6 xl:grid-cols-[1.08fr_0.92fr]">
         <motion.article
           className="section-shell overflow-hidden"
@@ -204,16 +306,16 @@ function FoodSection() {
               <div className="card-gradient absolute inset-0" />
             </div>
             <div className="p-6 md:p-8">
-              <h2 className="mt-4 text-5xl uppercase leading-[0.92] text-cream md:text-6xl">
+              <h2 className="mt-4 text-5xl uppercase leading-[0.92] text-cream md:text-6xl" data-gsap-headline>
                 YOUR FIRST BITE CHANGES ALL PLANS.
               </h2>
-              <p className="mt-5 text-lg italic leading-8 text-cream/[0.78]">
+              <p className="mt-5 text-lg italic leading-8 text-cream/[0.78]" data-gsap-copy>
                 You might come in for a beer, but the food is what keeps your table there another round.
               </p>
               <p className="mt-5 text-base leading-7 text-cream/[0.74] md:text-lg">
                 Our menu runs deep — Hawaiian-American favorites, tacos, pizza, and scratch-made dishes across the board. Highlights include Huli Huli Chicken, a Shrimp Po'Boy, the signature Driftwoods Burger, and loaded nachos topped with house cheese fondue and cilantro-lime crema. No lazy freezer-first menu — you will definitely notice the quality difference.
               </p>
-              <div className="mt-7">
+              <div className="mt-7" data-gsap-cta>
                 <Link href={menuPageHref} className="cta-primary">
                   SEE THE FULL MENU →
                 </Link>
@@ -230,7 +332,7 @@ function FoodSection() {
               initial={{ opacity: 0, x: 18 }}
               whileInView={{ opacity: 1, x: 0 }}
               viewport={viewport}
-              transition={{ duration: 0.55, delay: index * 0.07 }}
+              transition={{ ...cardSpring, delay: index * 0.07 }}
               whileHover={{ y: -6 }}
             >
               <div className="relative min-h-[220px] overflow-hidden">
@@ -258,7 +360,7 @@ function FoodSection() {
 
 function AfterDarkSection() {
   return (
-    <section className="px-4 py-8 md:px-8 md:py-10" id="after-dark">
+    <section className="px-4 py-8 md:px-8 md:py-10" id="after-dark" data-gsap-reveal>
       <div className="mx-auto grid max-w-[1380px] gap-6 xl:grid-cols-[1fr_0.9fr]">
         <motion.article
           className="section-shell overflow-hidden"
@@ -277,14 +379,14 @@ function AfterDarkSection() {
             />
             <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(3,8,14,0.12),rgba(3,8,14,0.9)_78%)]" />
             <div className="absolute inset-x-0 bottom-0 p-6 md:p-8">
-              <h2 className="mt-4 max-w-2xl text-5xl uppercase leading-[0.92] text-cream md:text-6xl">
+              <h2 className="mt-4 max-w-2xl text-5xl uppercase leading-[0.92] text-cream md:text-6xl" data-gsap-headline>
                 SOME NIGHTS YOU JUST NEED A PLACE TO LAND.
                 <span className="block text-cyan">THIS IS THAT PLACE.</span>
               </h2>
-              <p className="mt-5 max-w-2xl text-base leading-7 text-cream/[0.74] md:text-lg">
+              <p className="mt-5 max-w-2xl text-base leading-7 text-cream/[0.74] md:text-lg" data-gsap-copy>
                 Late night at Driftwoods has its own rhythm. No velvet ropes, no attitude, no reason to be anywhere else. The patios are rockin', the drinks are cold, and the LED wall is locked on whatever game matters tonight. The room doesn't clear out early here — it gets better as the night goes on. Weekends the music turns up and the crowd follows. Just walk in. We'll handle the rest.
               </p>
-              <div className="mt-7">
+              <div className="mt-7" data-gsap-cta>
                 <Link href={eventsPageHref} className="cta-primary">
                   SEE THIS WEEK'S EVENTS →
                 </Link>
@@ -317,7 +419,7 @@ function AfterDarkSection() {
               initial={{ opacity: 0, x: 18 }}
               whileInView={{ opacity: 1, x: 0 }}
               viewport={viewport}
-              transition={{ duration: 0.55, delay: index * 0.06 }}
+              transition={{ ...cardSpring, delay: index * 0.06 }}
               whileHover={{ y: -6 }}
             >
               <div className="grid gap-0 sm:grid-cols-[220px_minmax(0,1fr)]">
@@ -347,13 +449,13 @@ function AfterDarkSection() {
 
 function BarSection() {
   return (
-    <section className="px-4 py-8 md:px-8 md:py-10">
+    <section className="px-4 py-8 md:px-8 md:py-10" data-gsap-reveal>
       <div className="mx-auto max-w-[1380px]">
         <Reveal className="mb-8 max-w-4xl">
-          <h2 className="mt-4 text-5xl uppercase leading-[0.92] text-cream md:text-6xl xl:text-7xl">
+          <h2 className="mt-4 text-5xl uppercase leading-[0.92] text-cream md:text-6xl xl:text-7xl" data-gsap-headline>
             WE TAKE THE BAR SERIOUSLY. HAPPY HOUR IS DAILY UNTIL 7PM.
           </h2>
-          <p className="mt-5 max-w-4xl text-lg italic leading-8 text-cream/[0.78]">
+          <p className="mt-5 max-w-4xl text-lg italic leading-8 text-cream/[0.78]" data-gsap-copy>
             Happy hour runs daily until 7. Our cocktails are built with intention. Our beer list rotates the way it should. We take the bar seriously because that's half the reason people come back.
           </p>
         </Reveal>
@@ -366,7 +468,7 @@ function BarSection() {
               initial={{ opacity: 0, y: 24 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={viewport}
-              transition={{ duration: 0.55, delay: index * 0.06 }}
+              transition={{ ...cardSpring, delay: index * 0.06 }}
               whileHover={{ y: -7 }}
             >
               <div className="relative aspect-[1/1.08] overflow-hidden">
@@ -389,7 +491,7 @@ function BarSection() {
           ))}
         </div>
 
-        <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+        <div className="mt-8 flex flex-col gap-3 sm:flex-row" data-gsap-cta>
           <Link href={onTapPageHref} className="cta-primary">
             SEE WHAT'S ON TAP →
           </Link>
@@ -404,7 +506,7 @@ function BarSection() {
 
 function NeighborhoodSection() {
   return (
-    <section className="px-4 py-8 md:px-8 md:py-10">
+    <section className="px-4 py-8 md:px-8 md:py-10" data-gsap-reveal>
       <motion.div
         className="mx-auto max-w-[1380px] overflow-hidden rounded-[2rem] border border-white/10"
         initial={{ opacity: 0, y: 24 }}
@@ -422,17 +524,17 @@ function NeighborhoodSection() {
           />
           <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(3,8,14,0.28),rgba(3,8,14,0.88)_72%,rgba(3,8,14,0.96))]" />
           <div className="absolute inset-x-0 bottom-0 p-6 md:p-10">
-            <h2 className="max-w-5xl text-5xl uppercase leading-[0.9] text-cream md:text-7xl">
+            <h2 className="max-w-5xl text-5xl uppercase leading-[0.9] text-cream md:text-7xl" data-gsap-headline>
               NEIGHBORHOOD FAVORITE.
               <span className="block text-rust/95">NIGHTTIME RITUAL.</span>
             </h2>
-            <p className="mt-5 max-w-3xl text-base leading-7 text-cream/[0.76] md:text-lg">
+            <p className="mt-5 max-w-3xl text-base leading-7 text-cream/[0.76] md:text-lg" data-gsap-copy>
               We're not a chain. We're not a concept. We're a bar on 7th Street in Sunnyslope built by people who live here and plan to stay. If you're from this neighborhood, this is your spot. If you're not — now you've got a reason to come north.
             </p>
-            <p className="mt-4 max-w-3xl text-base leading-7 text-cream/[0.7] md:text-lg">
+            <p className="mt-4 max-w-3xl text-base leading-7 text-cream/[0.7] md:text-lg" data-gsap-copy>
               Big enough screens to matter. A kitchen strong enough to anchor the night. Patios good enough to keep people from leaving when they said they would. We're not trying to be a one-time stop. We're building the spot people default to.
             </p>
-            <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+            <div className="mt-8 flex flex-col gap-3 sm:flex-row" data-gsap-cta>
               <Link href={instagramUrl} target="_blank" className="cta-primary">
                 INSTAGRAM →
               </Link>
@@ -449,10 +551,10 @@ function NeighborhoodSection() {
 
 function SocialProofSection() {
   return (
-    <section className="px-4 py-8 md:px-8 md:py-10">
+    <section className="px-4 py-8 md:px-8 md:py-10" data-gsap-reveal>
       <div className="mx-auto max-w-[1380px]">
         <Reveal className="mb-8 max-w-4xl">
-          <h2 className="mt-4 text-5xl uppercase leading-[0.92] text-cream md:text-6xl xl:text-7xl">
+          <h2 className="mt-4 text-5xl uppercase leading-[0.92] text-cream md:text-6xl xl:text-7xl" data-gsap-headline>
             DON’T TAKE OUR WORD FOR IT. TAKE THEIRS.
           </h2>
         </Reveal>
@@ -465,7 +567,7 @@ function SocialProofSection() {
               initial={{ opacity: 0, y: 24 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={viewport}
-              transition={{ duration: 0.55, delay: index * 0.06 }}
+              transition={{ ...cardSpring, delay: index * 0.06 }}
               whileHover={{ y: -7 }}
             >
               <div className="relative aspect-[0.98/1.18] overflow-hidden">
@@ -488,7 +590,7 @@ function SocialProofSection() {
           ))}
         </div>
 
-        <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+        <div className="mt-8 flex flex-col gap-3 sm:flex-row" data-gsap-cta>
           <Link href={yelpUrl} target="_blank" className="cta-primary">
             READ MORE ON YELP →
           </Link>
@@ -503,7 +605,7 @@ function SocialProofSection() {
 
 function CloseSection() {
   return (
-    <section className="px-4 py-8 md:px-8 md:py-10" id="findus">
+    <section className="px-4 py-8 md:px-8 md:py-10" id="findus" data-gsap-reveal>
       <motion.div
         className="mx-auto overflow-hidden rounded-[2rem] border border-white/10 max-w-[1380px]"
         initial={{ opacity: 0, y: 24 }}
@@ -522,11 +624,11 @@ function CloseSection() {
           <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(3,8,14,0.34),rgba(3,8,14,0.88)_72%,rgba(3,8,14,0.96))]" />
           <div className="absolute inset-x-0 bottom-0 p-6 md:p-10">
             <div className="max-w-4xl">
-              <h2 className="mt-4 text-5xl uppercase leading-[0.9] text-cream md:text-7xl">
+              <h2 className="mt-4 text-5xl uppercase leading-[0.9] text-cream md:text-7xl" data-gsap-headline>
                 YOUR NEXT NIGHT OUT ALREADY HAS AN ADDRESS.
               </h2>
             </div>
-            <div className="mt-10 grid gap-4 lg:grid-cols-4">
+            <div className="mt-10 grid gap-4 lg:grid-cols-4" data-gsap-cta>
               {closeCards.map((card, index) => (
                 <motion.div
                   key={card.title}
@@ -534,7 +636,7 @@ function CloseSection() {
                   initial={{ opacity: 0, y: 20 }}
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={viewport}
-                  transition={{ duration: 0.45, delay: index * 0.06 }}
+                  transition={{ ...cardSpring, delay: index * 0.06 }}
                   whileHover={{ y: -6 }}
                 >
                   <p className="text-[0.72rem] font-semibold uppercase tracking-[0.22em] text-cyan/[0.82]">

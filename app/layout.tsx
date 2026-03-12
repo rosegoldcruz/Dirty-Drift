@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import type { ReactNode } from 'react';
 import { Barlow_Condensed, Inter_Tight } from 'next/font/google';
 import { facebookUrl, instagramUrl, siteUrl } from '@/lib/production-site-data';
+import { LenisScrollProvider } from '@/components/lenis-scroll-provider';
 import './globals.css';
 
 const display = Barlow_Condensed({
@@ -96,7 +97,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className={`${display.variable} ${body.variable}`}>
-      <body>{children}</body>
+      <body>
+        <LenisScrollProvider>{children}</LenisScrollProvider>
+      </body>
     </html>
   );
 }
