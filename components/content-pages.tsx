@@ -210,6 +210,11 @@ function PinnedCocktailGallery({
       return;
     }
 
+    if (typeof window !== 'undefined' && window.matchMedia('(max-width: 1023px)').matches) {
+      gsap.set(track, { clearProps: 'transform' });
+      return;
+    }
+
     const context = gsap.context(() => {
       const getTravel = () => Math.max(0, track.scrollWidth - viewportEl.clientWidth);
 
@@ -237,7 +242,7 @@ function PinnedCocktailGallery({
 
   return (
     <section ref={sectionRef} className="mt-12">
-      <div ref={viewportRef} className="overflow-hidden rounded-[1.8rem] border border-white/[0.08] bg-[#07121c] shadow-[0_30px_80px_rgba(2,8,14,0.42)]">
+      <div ref={viewportRef} className="overflow-x-auto lg:overflow-hidden rounded-[1.8rem] border border-white/[0.08] bg-[#07121c] shadow-[0_30px_80px_rgba(2,8,14,0.42)]">
         <div className="border-b border-white/[0.06] px-5 py-5 md:px-7">
           <p className="eyebrow">Cocktail gallery</p>
           <div className="mt-3 flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
@@ -251,7 +256,7 @@ function PinnedCocktailGallery({
           </div>
         </div>
 
-        <div ref={trackRef} className="flex gap-4 px-5 py-5 md:gap-6 md:px-7 md:py-7">
+        <div ref={trackRef} className="flex gap-4 px-5 py-5 md:gap-6 md:px-7 md:py-7 lg:will-change-transform">
           {items.map((item, index) => (
             <article
               key={item.name}

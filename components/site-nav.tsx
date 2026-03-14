@@ -88,17 +88,23 @@ export function SiteNav() {
                 animate={{ x: ['-18%', '18%', '-18%'], opacity: [0.18, 0.34, 0.18] }}
                 transition={{ duration: 11, repeat: Infinity, ease: 'easeInOut' }}
               />
-              <div className="relative flex h-full min-h-0 flex-col overflow-y-auto p-6 md:p-8">
-                <div className="mb-8 flex items-end justify-between gap-4">
-                  <div>
-                    <p className="eyebrow">Navigation</p>
-                    <h2 className="mt-3 max-w-sm text-4xl leading-none text-cream md:text-5xl">
-                      Driftwoods.
-                    </h2>
+              <div
+                className="relative flex h-full min-h-0 flex-col overflow-y-auto overscroll-contain p-6 md:p-8"
+                onWheelCapture={(event) => {
+                  event.stopPropagation();
+                }}
+                style={{ WebkitOverflowScrolling: 'touch' }}
+              >
+                <div className="mb-8">
+                  <div className="relative h-20 w-full max-w-[340px] md:h-24 md:max-w-[420px]">
+                    <Image
+                      src="/official%20logos/signage.svg"
+                      alt="Driftwoods neon sign"
+                      fill
+                      sizes="(max-width: 768px) 340px, 420px"
+                      className="object-contain object-left drop-shadow-[0_0_34px_rgba(255,97,56,0.26)]"
+                    />
                   </div>
-                  <p className="max-w-[12rem] text-sm leading-6 text-cream/60">
-                    Jump to the page you need.
-                  </p>
                 </div>
                 <div className="flex min-h-0 flex-1 flex-col gap-3">
                   <div className="grid gap-3">
