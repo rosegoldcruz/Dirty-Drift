@@ -2,7 +2,7 @@
 
 import type { ChangeEvent } from 'react';
 import { useMemo, useState } from 'react';
-import { reservationsEmail, reservationsEmailHref, siteUrl } from '@/lib/production-site-data';
+import { reservationsEmailHref, siteUrl } from '@/lib/production-site-data';
 
 const FORM_ENDPOINT = 'https://formsubmit.co/el/tujano';
 const THANK_YOU_PATH = '/private-bookings/thank-you';
@@ -71,7 +71,7 @@ export function BookingForm() {
         </div>
 
         <div className="grid gap-4 sm:grid-cols-2">
-          <label className="grid gap-2 text-sm uppercase tracking-[0.14em] text-cream/[0.72]">
+          <label className="grid min-w-0 gap-2 text-sm uppercase tracking-[0.14em] text-cream/[0.72]">
             Name
             <input
               id="booking-name"
@@ -79,10 +79,10 @@ export function BookingForm() {
               value={formState.name}
               onChange={handleChange}
               required
-              className="rounded-[1rem] border border-white/[0.12] bg-white/[0.04] px-4 py-3 text-base normal-case tracking-normal text-cream outline-none transition duration-300 focus:border-cyan/[0.45]"
+              className="w-full min-w-0 rounded-[1rem] border border-white/[0.12] bg-white/[0.04] px-4 py-3 text-base normal-case tracking-normal text-cream outline-none transition duration-300 focus:border-cyan/[0.45]"
             />
           </label>
-          <label className="grid gap-2 text-sm uppercase tracking-[0.14em] text-cream/[0.72]">
+          <label className="grid min-w-0 gap-2 text-sm uppercase tracking-[0.14em] text-cream/[0.72]">
             Email
             <input
               id="booking-email"
@@ -91,10 +91,10 @@ export function BookingForm() {
               value={formState.email}
               onChange={handleChange}
               required
-              className="rounded-[1rem] border border-white/[0.12] bg-white/[0.04] px-4 py-3 text-base normal-case tracking-normal text-cream outline-none transition duration-300 focus:border-cyan/[0.45]"
+              className="w-full min-w-0 rounded-[1rem] border border-white/[0.12] bg-white/[0.04] px-4 py-3 text-base normal-case tracking-normal text-cream outline-none transition duration-300 focus:border-cyan/[0.45]"
             />
           </label>
-          <label className="grid gap-2 text-sm uppercase tracking-[0.14em] text-cream/[0.72]">
+          <label className="grid min-w-0 gap-2 text-sm uppercase tracking-[0.14em] text-cream/[0.72]">
             Phone
             <input
               id="booking-phone"
@@ -102,10 +102,10 @@ export function BookingForm() {
               value={formState.phone}
               onChange={handleChange}
               required
-              className="rounded-[1rem] border border-white/[0.12] bg-white/[0.04] px-4 py-3 text-base normal-case tracking-normal text-cream outline-none transition duration-300 focus:border-cyan/[0.45]"
+              className="w-full min-w-0 rounded-[1rem] border border-white/[0.12] bg-white/[0.04] px-4 py-3 text-base normal-case tracking-normal text-cream outline-none transition duration-300 focus:border-cyan/[0.45]"
             />
           </label>
-          <label className="grid gap-2 text-sm uppercase tracking-[0.14em] text-cream/[0.72]">
+          <label className="grid min-w-0 gap-2 text-sm uppercase tracking-[0.14em] text-cream/[0.72]">
             Event Type
             <select
               id="booking-event-type"
@@ -113,7 +113,7 @@ export function BookingForm() {
               value={formState.eventType}
               onChange={handleChange}
               required
-              className="rounded-[1rem] border border-white/[0.12] bg-[#0b1520] px-4 py-3 text-base normal-case tracking-normal text-cream outline-none transition duration-300 focus:border-cyan/[0.45]"
+              className="w-full min-w-0 rounded-[1rem] border border-white/[0.12] bg-[#0b1520] px-4 py-3 text-base normal-case tracking-normal text-cream outline-none transition duration-300 focus:border-cyan/[0.45]"
             >
               <option value="">Choose one</option>
               <option value="Game Day Reservation">Game Day Reservation</option>
@@ -123,7 +123,7 @@ export function BookingForm() {
               <option value="Private Event">Private Event</option>
             </select>
           </label>
-          <label className="grid gap-2 text-sm uppercase tracking-[0.14em] text-cream/[0.72]">
+          <label className="grid min-w-0 gap-2 text-sm uppercase tracking-[0.14em] text-cream/[0.72]">
             Preferred Date
             <input
               id="booking-date"
@@ -132,10 +132,10 @@ export function BookingForm() {
               value={formState.date}
               onChange={handleChange}
               required
-              className="rounded-[1rem] border border-white/[0.12] bg-white/[0.04] px-4 py-3 text-base normal-case tracking-normal text-cream outline-none transition duration-300 focus:border-cyan/[0.45]"
+              className="w-full min-w-0 rounded-[1rem] border border-white/[0.12] bg-white/[0.04] px-4 py-3 text-base normal-case tracking-normal text-cream outline-none transition duration-300 focus:border-cyan/[0.45]"
             />
           </label>
-          <label className="grid gap-2 text-sm uppercase tracking-[0.14em] text-cream/[0.72]">
+          <label className="grid min-w-0 gap-2 text-sm uppercase tracking-[0.14em] text-cream/[0.72]">
             Preferred Time
             <input
               id="booking-time"
@@ -144,10 +144,10 @@ export function BookingForm() {
               value={formState.time}
               onChange={handleChange}
               required
-              className="rounded-[1rem] border border-white/[0.12] bg-white/[0.04] px-4 py-3 text-base normal-case tracking-normal text-cream outline-none transition duration-300 focus:border-cyan/[0.45]"
+              className="w-full min-w-0 rounded-[1rem] border border-white/[0.12] bg-white/[0.04] px-4 py-3 text-base normal-case tracking-normal text-cream outline-none transition duration-300 focus:border-cyan/[0.45]"
             />
           </label>
-          <label className="grid gap-2 text-sm uppercase tracking-[0.14em] text-cream/[0.72] sm:col-span-2">
+          <label className="grid min-w-0 gap-2 text-sm uppercase tracking-[0.14em] text-cream/[0.72] sm:col-span-2">
             Guest Count
             <input
               id="booking-guests"
@@ -155,10 +155,10 @@ export function BookingForm() {
               value={formState.guests}
               onChange={handleChange}
               required
-              className="rounded-[1rem] border border-white/[0.12] bg-white/[0.04] px-4 py-3 text-base normal-case tracking-normal text-cream outline-none transition duration-300 focus:border-cyan/[0.45]"
+              className="w-full min-w-0 rounded-[1rem] border border-white/[0.12] bg-white/[0.04] px-4 py-3 text-base normal-case tracking-normal text-cream outline-none transition duration-300 focus:border-cyan/[0.45]"
             />
           </label>
-          <label className="grid gap-2 text-sm uppercase tracking-[0.14em] text-cream/[0.72] sm:col-span-2">
+          <label className="grid min-w-0 gap-2 text-sm uppercase tracking-[0.14em] text-cream/[0.72] sm:col-span-2">
             Notes
             <textarea
               id="booking-notes"
@@ -166,7 +166,7 @@ export function BookingForm() {
               value={formState.notes}
               onChange={handleChange}
               rows={5}
-              className="rounded-[1rem] border border-white/[0.12] bg-white/[0.04] px-4 py-3 text-base normal-case tracking-normal text-cream outline-none transition duration-300 focus:border-cyan/[0.45]"
+              className="w-full min-w-0 rounded-[1rem] border border-white/[0.12] bg-white/[0.04] px-4 py-3 text-base normal-case tracking-normal text-cream outline-none transition duration-300 focus:border-cyan/[0.45]"
             />
           </label>
           <div className="sm:col-span-2 flex flex-col gap-3 sm:flex-row">
@@ -174,7 +174,7 @@ export function BookingForm() {
               SEND REQUEST →
             </button>
             <a href={reservationsEmailHref} className="cta-secondary text-center">
-              EMAIL MICHAEL →
+              EMAIL RESERVATIONS →
             </a>
           </div>
         </div>
