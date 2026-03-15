@@ -41,7 +41,7 @@ type FulfillmentMode = 'pickup' | 'delivery';
 
 function PageShell({ children }: { children: ReactNode }) {
   return (
-    <main className="page-shell overflow-x-clip">
+    <main className="page-shell overflow-x-hidden">
       <SiteNav />
       {children}
       <SiteFooter />
@@ -77,20 +77,12 @@ function PageHero({
           {(primaryCta || secondaryCta) && (
             <div className="mt-8 flex flex-col gap-3 sm:flex-row">
               {primaryCta ? (
-                <Link
-                  href={primaryCta.href}
-                  target={primaryCta.external ? '_blank' : undefined}
-                  className="cta-primary"
-                >
+                <Link href={primaryCta.href} target={primaryCta.external ? '_blank' : undefined} className="cta-primary">
                   {primaryCta.label}
                 </Link>
               ) : null}
               {secondaryCta ? (
-                <Link
-                  href={secondaryCta.href}
-                  target={secondaryCta.external ? '_blank' : undefined}
-                  className="cta-secondary"
-                >
+                <Link href={secondaryCta.href} target={secondaryCta.external ? '_blank' : undefined} className="cta-secondary">
                   {secondaryCta.label}
                 </Link>
               ) : null}
@@ -126,15 +118,10 @@ export function MenuPageContent() {
                 transition={{ duration: 0.45, delay: index * 0.03 }}
               >
                 <p className="eyebrow">{section.title}</p>
-                <p className="mt-3 text-sm uppercase tracking-[0.18em] text-cream/[0.62]">
-                  {section.intro}
-                </p>
+                <p className="mt-3 text-sm uppercase tracking-[0.18em] text-cream/[0.62]">{section.intro}</p>
                 <div className="mt-6 grid gap-4 md:grid-cols-2">
                   {section.items.map((item) => (
-                    <div
-                      key={`${section.title}-${item.name}`}
-                      className="rounded-[1.2rem] border border-white/[0.1] bg-[#0a1520] p-4"
-                    >
+                    <div key={`${section.title}-${item.name}`} className="rounded-[1.2rem] border border-white/[0.1] bg-[#0a1520] p-4">
                       <h2 className="text-2xl uppercase leading-[0.96] text-cream">{item.name}</h2>
                       <p className="mt-3 text-sm leading-6 text-cream/[0.72]">{item.description}</p>
                     </div>
@@ -154,20 +141,13 @@ export function MenuPageContent() {
               transition={{ duration: 0.45 }}
             >
               <p className="eyebrow">Visual menu</p>
-              <h2 className="mt-4 text-3xl uppercase leading-[0.94] text-cream">
-                Picture menus when you want them.
-              </h2>
+              <h2 className="mt-4 text-3xl uppercase leading-[0.94] text-cream">Picture menus when you want them.</h2>
               <p className="mt-4 text-sm leading-6 text-cream/[0.72]">
                 The clean text version stays primary. These image menus are here as the optional visual module.
               </p>
               <div className="mt-6 grid gap-3">
                 {visualMenuLinks.map((link) => (
-                  <Link
-                    key={link.title}
-                    href={link.href}
-                    target="_blank"
-                    className="footer-link justify-between"
-                  >
+                  <Link key={link.title} href={link.href} target="_blank" className="footer-link justify-between">
                     <span>{link.title}</span>
                     <ArrowRight className="h-3.5 w-3.5" />
                   </Link>
@@ -188,7 +168,7 @@ export function MenuPageContent() {
                   ORDER ONLINE →
                 </Link>
                 <Link href={onTapPageHref} className="cta-secondary text-center">
-                  SEE WHAT'S ON TAP →
+                  SEE WHAT&apos;S ON TAP →
                 </Link>
                 <Link href={directionsUrl} target="_blank" className="cta-secondary text-center">
                   GET DIRECTIONS →
@@ -221,7 +201,6 @@ function CocktailCard({
 }) {
   return (
     <article
-      key={item.name}
       className={`group relative overflow-hidden rounded-[1.6rem] border border-white/[0.08] bg-[#0a1520] ${className}`}
     >
       <div
@@ -239,7 +218,7 @@ function CocktailCard({
             alt={item.name}
             fill
             unoptimized
-            sizes="(min-width: 1280px) 24vw, (min-width: 1024px) 28vw, (min-width: 768px) 42vw, 78vw"
+            sizes="(min-width: 1280px) 300px, (min-width: 1024px) 280px, (min-width: 768px) 42vw, 78vw"
             className="object-cover object-center transition duration-500 group-hover:scale-[1.04]"
           />
         </div>
@@ -255,121 +234,107 @@ function PinnedCocktailGallery({
   id: string;
   items: typeof cocktails;
 }) {
-  const pinSectionRef = useRef<HTMLDivElement | null>(null);
-  const stickyRef = useRef<HTMLDivElement | null>(null);
+  const sectionRef = useRef<HTMLDivElement | null>(null);
   const frameRef = useRef<HTMLDivElement | null>(null);
   const trackRef = useRef<HTMLDivElement | null>(null);
-  const [distance, setDistance] = useState(0);
-  const [stickyHeight, setStickyHeight] = useState(720);
+  const stickyRef = useRef<HTMLDivElement | null>(null);
+
+  const [travel, setTravel] = useState(0);
+  const [sectionHeight, setSectionHeight] = useState(1100);
 
   useEffect(() => {
     const measure = () => {
       const frameWidth = frameRef.current?.clientWidth ?? 0;
       const trackWidth = trackRef.current?.scrollWidth ?? 0;
-      const nextDistance = Math.max(0, trackWidth - frameWidth);
-      const nextStickyHeight = stickyRef.current?.offsetHeight ?? 720;
+      const stickyHeight = stickyRef.current?.offsetHeight ?? 720;
+      const nextTravel = Math.max(0, trackWidth - frameWidth);
+      const nextSectionHeight = Math.max(stickyHeight + nextTravel + 120, stickyHeight + 320);
 
-      setDistance(nextDistance);
-      setStickyHeight(nextStickyHeight);
+      setTravel(nextTravel);
+      setSectionHeight(nextSectionHeight);
     };
 
     measure();
 
-    const resizeObserver =
-      typeof ResizeObserver !== 'undefined' ? new ResizeObserver(() => measure()) : null;
-
-    if (resizeObserver) {
-      if (frameRef.current) resizeObserver.observe(frameRef.current);
-      if (trackRef.current) resizeObserver.observe(trackRef.current);
-      if (stickyRef.current) resizeObserver.observe(stickyRef.current);
+    const ro = typeof ResizeObserver !== 'undefined' ? new ResizeObserver(measure) : null;
+    if (ro) {
+      if (frameRef.current) ro.observe(frameRef.current);
+      if (trackRef.current) ro.observe(trackRef.current);
+      if (stickyRef.current) ro.observe(stickyRef.current);
     }
 
     window.addEventListener('resize', measure);
 
     return () => {
-      resizeObserver?.disconnect();
+      ro?.disconnect();
       window.removeEventListener('resize', measure);
     };
   }, [items.length]);
 
   const { scrollYProgress } = useScroll({
-    target: pinSectionRef,
+    target: sectionRef,
     offset: ['start start', 'end end']
   });
 
-  const x = useTransform(scrollYProgress, [0, 1], [0, -distance]);
-  const desktopHeight = Math.max(stickyHeight + distance + 40, 760);
+  const x = useTransform(scrollYProgress, [0, 1], [0, -travel]);
 
   return (
     <div id={id} className="scroll-mt-32 md:scroll-mt-36">
-      <section className="lg:hidden">
-        <div className="overflow-hidden rounded-[1.8rem] border border-white/[0.08] bg-[#07121c] shadow-[0_30px_80px_rgba(2,8,14,0.42)]">
-          <div className="border-b border-white/[0.06] px-5 py-5 md:px-7">
-            <p className="eyebrow">Coastal cocktails</p>
-            <div className="mt-3 max-w-3xl">
-              <h3 className="text-3xl uppercase leading-[0.92] text-cream md:text-4xl">
-                The full cocktail lineup.
-              </h3>
-              <p className="mt-3 text-sm leading-6 text-cream/[0.68]">
-                Swipe through the full pour lineup.
-              </p>
-            </div>
-          </div>
+      <section className="section-shell overflow-hidden p-5 md:p-6 lg:hidden">
+        <div className="max-w-3xl">
+          <p className="eyebrow">Coastal cocktails</p>
+          <h2 className="mt-4 text-4xl uppercase leading-[0.94] text-cream md:text-5xl">The full cocktail lineup.</h2>
+          <p className="mt-4 text-sm leading-6 text-cream/[0.68]">Swipe through the cocktail wall.</p>
+        </div>
 
-          <div className="overflow-x-auto overflow-y-hidden overscroll-x-contain">
-            <div className="flex gap-4 px-5 pb-5 pt-5 md:gap-6 md:px-7 md:py-7">
-              {items.map((item) => (
-                <CocktailCard
-                  key={item.name}
-                  item={item}
-                  className="aspect-[3/4] w-[78vw] max-w-[360px] shrink-0"
-                />
-              ))}
-            </div>
+        <div className="mt-6 overflow-x-auto overflow-y-hidden overscroll-x-contain">
+          <div className="flex w-max gap-4 pr-5 md:gap-6">
+            {items.map((item) => (
+              <CocktailCard
+                key={item.name}
+                item={item}
+                className="aspect-[3/4] w-[78vw] max-w-[360px] shrink-0"
+              />
+            ))}
           </div>
         </div>
       </section>
 
       <section
-        ref={pinSectionRef}
-        className="relative hidden lg:block"
-        style={{ height: desktopHeight }}
+        ref={sectionRef}
+        className="relative hidden overflow-hidden lg:block"
+        style={{ height: sectionHeight }}
       >
         <div ref={stickyRef} className="sticky top-28">
-          <div
-            ref={frameRef}
-            className="overflow-hidden rounded-[1.8rem] border border-white/[0.08] bg-[#07121c] shadow-[0_30px_80px_rgba(2,8,14,0.42)]"
-          >
-            <div className="border-b border-white/[0.06] px-7 py-6">
-              <p className="eyebrow">Coastal cocktails</p>
-              <div className="mt-3 flex items-end justify-between gap-6">
-                <div className="max-w-3xl">
-                  <h3 className="text-4xl uppercase leading-[0.92] text-cream">
-                    The full cocktail lineup.
-                  </h3>
-                  <p className="mt-3 text-sm leading-6 text-cream/[0.68]">
-                    Scroll down and the cocktail wall slides sideways instead of blowing out the page width.
-                  </p>
-                </div>
-                <div className="rounded-full border border-white/[0.08] bg-white/[0.04] px-4 py-3 text-[0.72rem] font-semibold uppercase tracking-[0.18em] text-cream/[0.62]">
-                  Pinned horizontal gallery
-                </div>
+          <div className="section-shell overflow-hidden p-6 xl:p-7">
+            <div className="flex items-end justify-between gap-6">
+              <div className="max-w-3xl">
+                <p className="eyebrow">Coastal cocktails</p>
+                <h2 className="mt-4 text-5xl uppercase leading-[0.94] text-cream">The full cocktail lineup.</h2>
+                <p className="mt-4 text-sm leading-6 text-cream/[0.68]">
+                  Scroll down. The cocktail wall pins and moves sideways instead of spilling the page width.
+                </p>
+              </div>
+              <div className="rounded-full border border-white/[0.08] bg-white/[0.04] px-4 py-3 text-[0.72rem] font-semibold uppercase tracking-[0.18em] text-cream/[0.62]">
+                Pinned horizontal gallery
               </div>
             </div>
 
-            <motion.div
-              ref={trackRef}
-              style={{ x }}
-              className="flex w-max gap-6 px-7 pb-7 pt-7"
-            >
-              {items.map((item) => (
-                <CocktailCard
-                  key={item.name}
-                  item={item}
-                  className="aspect-[3/4] w-[22vw] min-w-[280px] max-w-[360px] shrink-0 xl:w-[20vw]"
-                />
-              ))}
-            </motion.div>
+            <div ref={frameRef} className="mt-7 overflow-hidden">
+              <motion.div
+                ref={trackRef}
+                style={{ x }}
+                className="flex w-max gap-6"
+              >
+                {items.map((item) => (
+                  <CocktailCard
+                    key={item.name}
+                    item={item}
+                    className="aspect-[3/4] w-[300px] shrink-0"
+                  />
+                ))}
+              </motion.div>
+            </div>
           </div>
         </div>
       </section>
@@ -458,15 +423,13 @@ export function OnTapPageContent() {
               transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
               className="max-w-4xl xl:pr-4"
             >
-              <p className="eyebrow">SEE WHAT'S ON TAP</p>
-              <h1 className="mt-4 text-5xl uppercase leading-[0.9] text-cream md:text-7xl">
-                SEE WHAT'S ON TAP.
-              </h1>
+              <p className="eyebrow">SEE WHAT&apos;S ON TAP</p>
+              <h1 className="mt-4 text-5xl uppercase leading-[0.9] text-cream md:text-7xl">SEE WHAT&apos;S ON TAP.</h1>
               <p className="mt-6 max-w-3xl text-base leading-7 text-cream/[0.74] md:text-lg">
-                Drafts, bottles, cans, wine, and cocktails. If it’s behind the bar, it’s listed here.
+                Drafts, bottles, cans, wine, and cocktails. If it&apos;s behind the bar, it&apos;s listed here.
               </p>
               <p className="mt-5 max-w-2xl text-[0.72rem] font-semibold uppercase tracking-[0.24em] text-cream/[0.48]">
-                Everything we’re pouring, all in one place.
+                Everything we&apos;re pouring, all in one place.
               </p>
               <div className="mt-8 flex flex-col gap-3 sm:flex-row">
                 <Link href={orderPageHref} className="cta-primary">
@@ -487,63 +450,37 @@ export function OnTapPageContent() {
               <div className="flex flex-col gap-5 sm:flex-row sm:items-start sm:justify-between">
                 <div>
                   <p className="eyebrow">Happy hour</p>
-                  <h2 className="mt-4 text-3xl uppercase leading-[0.94] text-cream md:text-[2.5rem]">
-                    Daily until 7pm. Enough reason to pull up early.
-                  </h2>
+                  <h2 className="mt-4 text-3xl uppercase leading-[0.94] text-cream md:text-[2.5rem]">Daily until 7pm. Enough reason to pull up early.</h2>
                 </div>
                 <div className="flex shrink-0 items-end gap-3">
                   {happyHourAssets.map((item) => (
                     <div key={item.name} className="relative h-20 w-14">
-                      <Image
-                        src={item.image}
-                        alt={item.name}
-                        fill
-                        unoptimized
-                        sizes="56px"
-                        className="object-contain object-bottom"
-                      />
+                      <Image src={item.image} alt={item.name} fill unoptimized sizes="56px" className="object-contain object-bottom" />
                     </div>
                   ))}
                 </div>
               </div>
-
               <div className="mt-6 flex flex-col gap-3 sm:flex-row">
-                <Link href={happyHourPageHref} className="cta-primary">
-                  SEE HAPPY HOUR →
-                </Link>
-                <div className="rounded-full border border-white/[0.08] bg-white/[0.04] px-4 py-3 text-[0.72rem] font-semibold uppercase tracking-[0.18em] text-cream/[0.62]">
-                  Daily window · Drinks + food
-                </div>
+                <Link href={happyHourPageHref} className="cta-primary">SEE HAPPY HOUR →</Link>
+                <div className="rounded-full border border-white/[0.08] bg-white/[0.04] px-4 py-3 text-[0.72rem] font-semibold uppercase tracking-[0.18em] text-cream/[0.62]">Daily window · Drinks + food</div>
               </div>
-
               <div className="mt-7 grid gap-4 sm:grid-cols-2">
                 <div className="rounded-[1.3rem] border border-white/[0.08] bg-[#0a1520] p-4">
-                  <p className="text-[0.64rem] font-semibold uppercase tracking-[0.24em] text-cyan/[0.84]">
-                    Drink deals
-                  </p>
+                  <p className="text-[0.64rem] font-semibold uppercase tracking-[0.24em] text-cyan/[0.84]">Drink deals</p>
                   <div className="mt-3 grid gap-2">
                     {happyHourDrinkItems.map((item) => (
-                      <div
-                        key={item.title}
-                        className="rounded-[0.95rem] border border-white/[0.08] bg-white/[0.03] px-3 py-3"
-                      >
+                      <div key={item.title} className="rounded-[0.95rem] border border-white/[0.08] bg-white/[0.03] px-3 py-3">
                         <h3 className="text-base uppercase leading-[0.96] text-cream">{item.title}</h3>
                         <p className="mt-1 text-sm leading-5 text-cream/[0.68]">{item.copy}</p>
                       </div>
                     ))}
                   </div>
                 </div>
-
                 <div className="rounded-[1.3rem] border border-white/[0.08] bg-[#0a1520] p-4">
-                  <p className="text-[0.64rem] font-semibold uppercase tracking-[0.24em] text-cyan/[0.84]">
-                    Food deals
-                  </p>
+                  <p className="text-[0.64rem] font-semibold uppercase tracking-[0.24em] text-cyan/[0.84]">Food deals</p>
                   <div className="mt-3 grid gap-2">
                     {happyHourFoodItems.map((item) => (
-                      <div
-                        key={item.title}
-                        className="rounded-[0.95rem] border border-white/[0.08] bg-white/[0.03] px-3 py-3"
-                      >
+                      <div key={item.title} className="rounded-[0.95rem] border border-white/[0.08] bg-white/[0.03] px-3 py-3">
                         <h3 className="text-base uppercase leading-[0.96] text-cream">{item.title}</h3>
                         <p className="mt-1 text-sm leading-5 text-cream/[0.68]">{item.copy}</p>
                       </div>
@@ -574,29 +511,19 @@ export function OnTapPageContent() {
                   }`}
                   aria-pressed={isActive}
                 >
-                  <div
-                    className={`relative h-12 w-12 shrink-0 rounded-[1rem] border ${
-                      isActive ? 'border-cyan/25 bg-white/[0.08]' : 'border-white/[0.08] bg-white/[0.04]'
-                    }`}
-                  >
+                  <div className={`relative h-12 w-12 shrink-0 rounded-[1rem] border ${isActive ? 'border-cyan/25 bg-white/[0.08]' : 'border-white/[0.08] bg-white/[0.04]'}`}>
                     <Image
                       src={item.image}
                       alt={item.label}
                       fill
                       unoptimized
                       sizes="48px"
-                      className={`object-contain p-1.5 transition duration-300 ${
-                        isActive ? 'scale-[1.08]' : 'opacity-80 group-hover:scale-[1.04]'
-                      }`}
+                      className={`object-contain p-1.5 transition duration-300 ${isActive ? 'scale-[1.08]' : 'opacity-80 group-hover:scale-[1.04]'}`}
                     />
                   </div>
                   <div className="min-w-0">
-                    <p className="text-[0.62rem] font-semibold uppercase tracking-[0.24em] text-cyan/[0.84]">
-                      {item.kicker}
-                    </p>
-                    <p className="mt-1 text-sm font-semibold uppercase tracking-[0.12em] text-cream md:text-[0.9rem]">
-                      {item.label}
-                    </p>
+                    <p className="text-[0.62rem] font-semibold uppercase tracking-[0.24em] text-cyan/[0.84]">{item.kicker}</p>
+                    <p className="mt-1 text-sm font-semibold uppercase tracking-[0.12em] text-cream md:text-[0.9rem]">{item.label}</p>
                     <p className="mt-1 text-xs leading-5 text-cream/[0.62] md:text-[0.82rem]">{item.note}</p>
                   </div>
                 </motion.button>
@@ -623,7 +550,6 @@ export function OnTapPageContent() {
             <p className="mt-5 text-base leading-7 text-cream/[0.74] md:text-lg">
               From tap handles to bottles, cans, and wine, the full drink lineup starts here.
             </p>
-
             <div className="mt-10 grid gap-4">
               {primaryCategory ? (
                 <motion.div
@@ -637,37 +563,21 @@ export function OnTapPageContent() {
                   <div className="absolute inset-0 bg-[linear-gradient(135deg,rgba(107,231,255,0.06),transparent_48%),radial-gradient(circle_at_92%_12%,rgba(255,97,56,0.12),transparent_24%)]" />
                   {primaryCategory.accentAsset ? (
                     <div className="pointer-events-none absolute right-4 top-4 hidden h-20 w-20 opacity-80 transition duration-300 group-hover:-translate-y-1 md:block">
-                      <Image
-                        src={primaryCategory.accentAsset}
-                        alt={primaryCategory.title}
-                        fill
-                        unoptimized
-                        sizes="80px"
-                        className="object-contain object-right-top"
-                      />
+                      <Image src={primaryCategory.accentAsset} alt={primaryCategory.title} fill unoptimized sizes="80px" className="object-contain object-right-top" />
                     </div>
                   ) : null}
                   <div className="relative max-w-2xl">
-                    <p className="text-[0.66rem] font-semibold uppercase tracking-[0.24em] text-cyan/[0.84]">
-                      Primary pour list
-                    </p>
+                    <p className="text-[0.66rem] font-semibold uppercase tracking-[0.24em] text-cyan/[0.84]">Primary pour list</p>
                     <div className="mt-3 flex items-center gap-3">
                       <Tv2 className="h-5 w-5 text-cyan" />
-                      <h3 className="text-[1.75rem] uppercase leading-[0.94] text-cream md:text-[2rem]">
-                        {primaryCategory.title}
-                      </h3>
+                      <h3 className="text-[1.75rem] uppercase leading-[0.94] text-cream md:text-[2rem]">{primaryCategory.title}</h3>
                     </div>
-                    <p className="mt-3 max-w-2xl text-sm leading-6 text-cream/[0.72] md:text-[0.98rem]">
-                      {primaryCategory.copy}
-                    </p>
+                    <p className="mt-3 max-w-2xl text-sm leading-6 text-cream/[0.72] md:text-[0.98rem]">{primaryCategory.copy}</p>
                   </div>
                   {primaryCategory.items?.length ? (
                     <div className="relative mt-5 flex flex-wrap gap-2.5">
                       {primaryCategory.items.map((item) => (
-                        <span
-                          key={item}
-                          className="rounded-full border border-white/[0.08] bg-white/[0.04] px-3.5 py-2 text-[0.72rem] font-semibold uppercase tracking-[0.14em] text-cream/[0.82]"
-                        >
+                        <span key={item} className="rounded-full border border-white/[0.08] bg-white/[0.04] px-3.5 py-2 text-[0.72rem] font-semibold uppercase tracking-[0.14em] text-cream/[0.82]">
                           {item}
                         </span>
                       ))}
@@ -676,18 +586,8 @@ export function OnTapPageContent() {
                   {primaryCategory.assetCluster?.length ? (
                     <div className="relative mt-6 hidden items-end gap-3 md:flex">
                       {primaryCategory.assetCluster.slice(0, 2).map((asset) => (
-                        <div
-                          key={asset}
-                          className="relative h-16 w-14 opacity-72 transition duration-300 group-hover:-translate-y-1 group-hover:opacity-95"
-                        >
-                          <Image
-                            src={asset}
-                            alt={primaryCategory.title}
-                            fill
-                            unoptimized
-                            sizes="56px"
-                            className="object-contain object-bottom"
-                          />
+                        <div key={asset} className="relative h-16 w-14 opacity-72 transition duration-300 group-hover:-translate-y-1 group-hover:opacity-95">
+                          <Image src={asset} alt={primaryCategory.title} fill unoptimized sizes="56px" className="object-contain object-bottom" />
                         </div>
                       ))}
                     </div>
@@ -707,23 +607,14 @@ export function OnTapPageContent() {
                   >
                     {bottleCategory.accentAsset ? (
                       <div className="pointer-events-none absolute bottom-3 right-3 hidden h-16 w-12 opacity-75 md:block">
-                        <Image
-                          src={bottleCategory.accentAsset}
-                          alt={bottleCategory.title}
-                          fill
-                          unoptimized
-                          sizes="48px"
-                          className="object-contain object-bottom"
-                        />
+                        <Image src={bottleCategory.accentAsset} alt={bottleCategory.title} fill unoptimized sizes="48px" className="object-contain object-bottom" />
                       </div>
                     ) : null}
                     <div className="relative flex items-center gap-3">
                       <Tv2 className="h-5 w-5 text-cyan" />
                       <h3 className="text-2xl uppercase leading-[0.96] text-cream">{bottleCategory.title}</h3>
                     </div>
-                    <p className="relative mt-3 max-w-xl text-sm leading-6 text-cream/[0.72]">
-                      {bottleCategory.copy}
-                    </p>
+                    <p className="relative mt-3 max-w-xl text-sm leading-6 text-cream/[0.72]">{bottleCategory.copy}</p>
                     {bottleCategory.items?.length ? (
                       <div className="relative mt-4 flex flex-wrap gap-2">
                         {bottleCategory.items.map((item) => (
@@ -736,18 +627,8 @@ export function OnTapPageContent() {
                     {bottleCategory.assetCluster?.length ? (
                       <div className="relative mt-5 hidden items-end gap-3 md:flex">
                         {bottleCategory.assetCluster.slice(0, 2).map((asset) => (
-                          <div
-                            key={asset}
-                            className="relative h-12 w-10 opacity-65 transition duration-300 group-hover:-translate-y-1 group-hover:opacity-90"
-                          >
-                            <Image
-                              src={asset}
-                              alt={bottleCategory.title}
-                              fill
-                              unoptimized
-                              sizes="40px"
-                              className="object-contain object-bottom"
-                            />
+                          <div key={asset} className="relative h-12 w-10 opacity-65 transition duration-300 group-hover:-translate-y-1 group-hover:opacity-90">
+                            <Image src={asset} alt={bottleCategory.title} fill unoptimized sizes="40px" className="object-contain object-bottom" />
                           </div>
                         ))}
                       </div>
@@ -767,25 +648,14 @@ export function OnTapPageContent() {
                     >
                       {nonAlcoholicCategory.accentAsset ? (
                         <div className="pointer-events-none absolute bottom-3 right-3 hidden h-16 w-10 opacity-80 md:block">
-                          <Image
-                            src={nonAlcoholicCategory.accentAsset}
-                            alt={nonAlcoholicCategory.title}
-                            fill
-                            unoptimized
-                            sizes="40px"
-                            className="object-contain object-bottom"
-                          />
+                          <Image src={nonAlcoholicCategory.accentAsset} alt={nonAlcoholicCategory.title} fill unoptimized sizes="40px" className="object-contain object-bottom" />
                         </div>
                       ) : null}
                       <div className="relative flex items-center gap-3">
                         <Tv2 className="h-5 w-5 text-cyan" />
-                        <h3 className="text-xl uppercase leading-[0.96] text-cream">
-                          {nonAlcoholicCategory.title}
-                        </h3>
+                        <h3 className="text-xl uppercase leading-[0.96] text-cream">{nonAlcoholicCategory.title}</h3>
                       </div>
-                      <p className="relative mt-3 text-sm leading-6 text-cream/[0.72]">
-                        {nonAlcoholicCategory.copy}
-                      </p>
+                      <p className="relative mt-3 text-sm leading-6 text-cream/[0.72]">{nonAlcoholicCategory.copy}</p>
                       {nonAlcoholicCategory.items?.length ? (
                         <div className="relative mt-4 flex flex-wrap gap-2">
                           {nonAlcoholicCategory.items.map((item) => (
@@ -807,12 +677,8 @@ export function OnTapPageContent() {
                       transition={{ duration: 0.35, delay: 0.07 }}
                       whileHover={{ y: -3 }}
                     >
-                      <p className="text-[0.64rem] font-semibold uppercase tracking-[0.24em] text-cyan/[0.84]">
-                        Seasonal watch
-                      </p>
-                      <h3 className="mt-3 text-xl uppercase leading-[0.96] text-cream">
-                        {seasonalCategory.title}
-                      </h3>
+                      <p className="text-[0.64rem] font-semibold uppercase tracking-[0.24em] text-cyan/[0.84]">Seasonal watch</p>
+                      <h3 className="mt-3 text-xl uppercase leading-[0.96] text-cream">{seasonalCategory.title}</h3>
                       <p className="mt-3 text-sm leading-6 text-cream/[0.68]">{seasonalCategory.copy}</p>
                     </motion.div>
                   ) : null}
@@ -830,30 +696,18 @@ export function OnTapPageContent() {
                 >
                   {wineCategory.accentAsset ? (
                     <div className="pointer-events-none absolute right-4 top-4 hidden h-16 w-14 opacity-75 md:block">
-                      <Image
-                        src={wineCategory.accentAsset}
-                        alt={wineCategory.title}
-                        fill
-                        unoptimized
-                        sizes="56px"
-                        className="object-contain object-right-top"
-                      />
+                      <Image src={wineCategory.accentAsset} alt={wineCategory.title} fill unoptimized sizes="56px" className="object-contain object-right-top" />
                     </div>
                   ) : null}
                   <div className="relative flex items-center gap-3">
                     <Tv2 className="h-5 w-5 text-cyan" />
                     <h3 className="text-2xl uppercase leading-[0.96] text-cream">{wineCategory.title}</h3>
                   </div>
-                  <p className="relative mt-3 max-w-xl text-sm leading-6 text-cream/[0.72]">
-                    {wineCategory.copy}
-                  </p>
+                  <p className="relative mt-3 max-w-xl text-sm leading-6 text-cream/[0.72]">{wineCategory.copy}</p>
                   {wineCategory.items?.length ? (
                     <div className="relative mt-5 grid gap-2 sm:grid-cols-2">
                       {wineCategory.items.map((item) => (
-                        <div
-                          key={item}
-                          className="rounded-[0.95rem] border border-white/[0.08] bg-white/[0.03] px-3 py-2 text-sm font-medium text-cream/[0.82]"
-                        >
+                        <div key={item} className="rounded-[0.95rem] border border-white/[0.08] bg-white/[0.03] px-3 py-2 text-sm font-medium text-cream/[0.82]">
                           {item}
                         </div>
                       ))}
@@ -877,16 +731,10 @@ export function OnTapPageContent() {
               <div className="rounded-[1.35rem] border border-white/[0.08] bg-[#09131d] p-5 md:p-6">
                 <div className="flex flex-col gap-3">
                   <div>
-                    <p className="text-[0.64rem] font-semibold uppercase tracking-[0.24em] text-cyan/[0.84]">
-                      Full roster
-                    </p>
-                    <h3 className="mt-3 text-2xl uppercase leading-[0.94] text-cream md:text-[2rem]">
-                      Everything else on the board.
-                    </h3>
+                    <p className="text-[0.64rem] font-semibold uppercase tracking-[0.24em] text-cyan/[0.84]">Full roster</p>
+                    <h3 className="mt-3 text-2xl uppercase leading-[0.94] text-cream md:text-[2rem]">Everything else on the board.</h3>
                   </div>
-                  <p className="max-w-xl text-sm leading-6 text-cream/[0.62]">
-                    The rest of the drink list is below, so you can see every option in one place.
-                  </p>
+                  <p className="max-w-xl text-sm leading-6 text-cream/[0.62]">The rest of the drink list is below, so you can see every option in one place.</p>
                 </div>
 
                 <div className="mt-6 grid gap-3">
@@ -903,9 +751,7 @@ export function OnTapPageContent() {
                       <div className="flex items-start gap-3">
                         <span className="mt-1 h-2 w-2 shrink-0 rounded-full bg-cyan/80" />
                         <div>
-                          <h4 className="text-[1rem] font-semibold uppercase leading-[0.98] text-cream">
-                            {item.name}
-                          </h4>
+                          <h4 className="text-[1rem] font-semibold uppercase leading-[0.98] text-cream">{item.name}</h4>
                           <p className="mt-2 text-sm leading-6 text-cream/[0.68]">{item.build}</p>
                         </div>
                       </div>
@@ -926,9 +772,7 @@ export function OnTapPageContent() {
               <div className="flex flex-col gap-5 md:flex-row md:items-start md:justify-between">
                 <div className="max-w-2xl">
                   <p className="eyebrow">Happy hour</p>
-                  <h2 className="mt-4 text-3xl uppercase leading-[0.94] text-cream md:text-[2.5rem]">
-                    Daily until 7pm. Enough reason to pull up early.
-                  </h2>
+                  <h2 className="mt-4 text-3xl uppercase leading-[0.94] text-cream md:text-[2.5rem]">Daily until 7pm. Enough reason to pull up early.</h2>
                   <p className="mt-4 text-base leading-7 text-cream/[0.72]">
                     Drafts, wells, house wine, and bar bites. All available daily until 7pm.
                   </p>
@@ -936,14 +780,7 @@ export function OnTapPageContent() {
                 <div className="flex items-end gap-3 md:pt-2">
                   {happyHourAssets.map((item) => (
                     <div key={item.name} className="relative h-20 w-14 opacity-78 md:h-24 md:w-16">
-                      <Image
-                        src={item.image}
-                        alt={item.name}
-                        fill
-                        unoptimized
-                        sizes="64px"
-                        className="object-contain object-bottom"
-                      />
+                      <Image src={item.image} alt={item.name} fill unoptimized sizes="64px" className="object-contain object-bottom" />
                     </div>
                   ))}
                 </div>
@@ -960,9 +797,7 @@ export function OnTapPageContent() {
 
               <div className="mt-7 grid gap-4 lg:grid-cols-2">
                 <div className="rounded-[1.3rem] border border-white/[0.08] bg-[#0a1520] p-5">
-                  <p className="text-[0.64rem] font-semibold uppercase tracking-[0.24em] text-cyan/[0.84]">
-                    Drink deals
-                  </p>
+                  <p className="text-[0.64rem] font-semibold uppercase tracking-[0.24em] text-cyan/[0.84]">Drink deals</p>
                   <div className="mt-4 grid gap-3">
                     {happyHourDrinkItems.map((item, index) => (
                       <motion.div
@@ -982,9 +817,7 @@ export function OnTapPageContent() {
                 </div>
 
                 <div className="rounded-[1.3rem] border border-white/[0.08] bg-[#0a1520] p-5">
-                  <p className="text-[0.64rem] font-semibold uppercase tracking-[0.24em] text-cyan/[0.84]">
-                    Food deals
-                  </p>
+                  <p className="text-[0.64rem] font-semibold uppercase tracking-[0.24em] text-cyan/[0.84]">Food deals</p>
                   <div className="mt-4 grid gap-3">
                     {happyHourFoodItems.map((item, index) => (
                       <motion.div
@@ -1015,8 +848,8 @@ export function EventsPageContent() {
   return (
     <PageShell>
       <PageHero
-        eyebrow="SEE THIS WEEK'S EVENTS"
-        title="SEE THIS WEEK'S EVENTS."
+        eyebrow="SEE THIS WEEK&apos;S EVENTS"
+        title="SEE THIS WEEK&apos;S EVENTS."
         body="Weekly specials, live music, watch parties, and late-night reasons to show up all land here."
         primaryCta={{ label: 'ORDER ONLINE →', href: orderPageHref }}
         secondaryCta={{ label: 'PLAN YOUR EVENT →', href: privateBookingsHref }}
@@ -1053,7 +886,7 @@ export function EventsPageContent() {
               viewport={viewport}
               transition={{ duration: 0.45, delay: 0.05 }}
             >
-              <p className="eyebrow">What's happening</p>
+              <p className="eyebrow">What&apos;s happening</p>
               <div className="mt-6 grid gap-4">
                 {eventTracks.map((item) => (
                   <div key={item.title} className="rounded-[1.2rem] border border-white/[0.1] bg-[#0a1520] p-4">
@@ -1119,7 +952,7 @@ export function OrderPageContent() {
             </h2>
             <p className="mt-5 text-base leading-7 text-cream/[0.74] md:text-lg">
               {mode === 'pickup'
-                ? "Order ahead and grab it when you're ready. Fast, clean, no wait."
+                ? 'Order ahead and grab it when you’re ready. Fast, clean, no wait.'
                 : 'Staying in? Get the food brought to you through your preferred service.'}
             </p>
 
@@ -1158,9 +991,7 @@ export function OrderPageContent() {
 
             <div className="mt-6 grid gap-3">
               <div className="rounded-[1.2rem] border border-white/[0.1] bg-[#0a1520] p-4">
-                <p className="text-[0.68rem] font-semibold uppercase tracking-[0.22em] text-cyan/[0.82]">
-                  {mode === 'pickup' ? 'Pickup' : 'Delivery'}
-                </p>
+                <p className="text-[0.68rem] font-semibold uppercase tracking-[0.22em] text-cyan/[0.82]">{mode === 'pickup' ? 'Pickup' : 'Delivery'}</p>
                 <p className="mt-3 text-base leading-7 text-cream/[0.78]">
                   {mode === 'pickup'
                     ? 'Order online and pick up at 9832 N 7th St. Skip the wait.'
@@ -1170,9 +1001,7 @@ export function OrderPageContent() {
               <div className="rounded-[1.2rem] border border-white/[0.1] bg-[#0a1520] p-4">
                 <div className="flex items-center gap-3">
                   <MapPin className="h-4 w-4 text-cyan" />
-                  <p className="text-lg uppercase leading-[0.96] text-cream">
-                    9832 N 7th St, Phoenix, AZ 85020
-                  </p>
+                  <p className="text-lg uppercase leading-[0.96] text-cream">9832 N 7th St, Phoenix, AZ 85020</p>
                 </div>
                 <p className="mt-3 text-sm leading-6 text-cream/[0.72]">Sunnyslope · North Phoenix</p>
               </div>
@@ -1195,9 +1024,7 @@ export function OrderPageContent() {
                   <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
                     <div className="max-w-2xl">
                       <p className="eyebrow">{provider.label}</p>
-                      <h2 className="mt-3 text-3xl uppercase leading-[0.94] text-cream md:text-4xl">
-                        {provider.summary}
-                      </h2>
+                      <h2 className="mt-3 text-3xl uppercase leading-[0.94] text-cream md:text-4xl">{provider.summary}</h2>
                       <p className="mt-4 text-base leading-7 text-cream/[0.74]">{provider.note}</p>
                     </div>
                     <span className="glass-chip">{mode === 'pickup' ? 'Pickup' : 'Delivery'}</span>
@@ -1205,9 +1032,7 @@ export function OrderPageContent() {
 
                   <div className="mt-6 flex flex-col gap-3 sm:flex-row">
                     <Link href={href} target="_blank" className="cta-primary text-center">
-                      {mode === 'pickup'
-                        ? `START PICKUP WITH ${provider.label.toUpperCase()} →`
-                        : `START DELIVERY WITH ${provider.label.toUpperCase()} →`}
+                      {mode === 'pickup' ? `START PICKUP WITH ${provider.label.toUpperCase()} →` : `START DELIVERY WITH ${provider.label.toUpperCase()} →`}
                     </Link>
                   </div>
                 </motion.article>
@@ -1228,7 +1053,7 @@ export function GameDayPageContent() {
         title="GAME DAY STARTS HERE."
         body="Reserve your table, bring the crew, and make Driftwoods your game day spot."
         primaryCta={{ label: 'RESERVE FOR GAME DAY →', href: privateBookingsHref }}
-        secondaryCta={{ label: "SEE THIS WEEK'S EVENTS →", href: eventsPageHref }}
+        secondaryCta={{ label: 'SEE THIS WEEK’S EVENTS →', href: eventsPageHref }}
       />
 
       <section className="px-4 py-8 md:px-8 md:py-10">
@@ -1345,7 +1170,7 @@ export function HappyHourPageContent() {
               viewport={viewport}
               transition={{ duration: 0.45, delay: 0.04 }}
             >
-              <p className="eyebrow">What's discounted</p>
+              <p className="eyebrow">What&apos;s discounted</p>
               <div className="mt-6 grid gap-4 sm:grid-cols-2">
                 {happyHourItems.map((item) => (
                   <div key={item.title} className="rounded-[1.2rem] border border-white/[0.1] bg-[#0a1520] p-4">
@@ -1371,13 +1196,9 @@ export function HappyHourPageContent() {
                 <div className="rounded-[1.2rem] border border-white/[0.1] bg-[#0a1520] p-4">
                   <div className="flex items-center gap-3">
                     <MapPin className="h-4 w-4 text-cyan" />
-                    <h2 className="text-lg uppercase leading-[0.96] text-cream">
-                      9832 N 7th St, Phoenix, AZ 85020
-                    </h2>
+                    <h2 className="text-lg uppercase leading-[0.96] text-cream">9832 N 7th St, Phoenix, AZ 85020</h2>
                   </div>
-                  <p className="mt-3 text-sm leading-6 text-cream/[0.72]">
-                    Walk in early, catch the deal, and let the night get longer from there.
-                  </p>
+                  <p className="mt-3 text-sm leading-6 text-cream/[0.72]">Walk in early, catch the deal, and let the night get longer from there.</p>
                 </div>
               </div>
               <div className="mt-6 flex flex-col gap-3 sm:flex-row">
@@ -1385,7 +1206,7 @@ export function HappyHourPageContent() {
                   GET DIRECTIONS →
                 </Link>
                 <Link href={onTapPageHref} className="cta-secondary text-center">
-                  SEE WHAT'S ON TAP →
+                  SEE WHAT&apos;S ON TAP →
                 </Link>
               </div>
             </motion.article>
