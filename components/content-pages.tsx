@@ -235,25 +235,7 @@ function PinnedCocktailGallery({
                   />
                 </div>
               ) : null}
-              <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(180deg,rgba(5,12,18,0.02)_0%,rgba(5,12,18,0.28)_42%,rgba(5,12,18,0.9)_100%)]" />
-              <div className="relative flex h-full flex-col justify-between p-5 md:p-6">
-                <div className="flex items-start justify-between gap-4">
-                  <span className="rounded-full border border-white/[0.12] bg-[#08131d]/82 px-3 py-1 text-[0.66rem] font-semibold uppercase tracking-[0.24em] text-cyan/[0.84] backdrop-blur-md">
-                    Cocktail {String(index + 1).padStart(2, '0')}
-                  </span>
-                  <span className="rounded-full border border-white/[0.12] bg-[#08131d]/78 px-3 py-1 text-[0.66rem] font-semibold uppercase tracking-[0.2em] text-cream/[0.62] backdrop-blur-md">
-                    Poster card
-                  </span>
-                </div>
-                <div className="max-w-[18rem] rounded-[1.3rem] border border-white/[0.08] bg-[#06101a]/80 p-4 backdrop-blur-md md:max-w-[20rem] md:p-5">
-                  <p className="text-[0.68rem] font-semibold uppercase tracking-[0.24em] text-cyan/[0.84]">House pour</p>
-                  <h4 className="mt-3 text-[1.8rem] uppercase leading-[0.92] text-cream md:text-[2.2rem]">{item.name}</h4>
-                  <p className="mt-3 text-sm leading-6 text-cream/[0.72]">{item.build}</p>
-                  <p className="mt-4 text-sm leading-6 text-cream/[0.58]">
-                    {notes.get(item.name) ?? 'House-built cocktail with a brighter finish and cleaner structure.'}
-                  </p>
-                </div>
-              </div>
+
             </article>
           ))}
         </div>
