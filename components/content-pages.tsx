@@ -612,7 +612,7 @@ export function OnTapPageContent() {
           <div className="grid gap-5">
             <motion.article
               id="cocktail-guide"
-              className="section-shell overflow-visible p-5 md:p-6"
+              className="section-shell p-5 md:p-6"
               initial={{ opacity: 0, y: 24 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={viewport}
@@ -622,10 +622,18 @@ export function OnTapPageContent() {
               <div className="mt-4 max-w-2xl">
                 <h2 className="text-4xl uppercase leading-[0.94] text-cream md:text-5xl">The full cocktail lineup.</h2>
               </div>
+            </motion.article>
 
-              <PinnedCocktailGallery items={cocktails} notes={featuredCocktailNotes} />
+            <PinnedCocktailGallery items={cocktails} notes={featuredCocktailNotes} />
 
-              <div className="mt-8 rounded-[1.35rem] border border-white/[0.08] bg-[#09131d] p-5 md:p-6">
+            <motion.article
+              className="section-shell p-5 md:p-6"
+              initial={{ opacity: 0, y: 24 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={viewport}
+              transition={{ duration: 0.45, delay: 0.05 }}
+            >
+              <div className="rounded-[1.35rem] border border-white/[0.08] bg-[#09131d] p-5 md:p-6">
                 <div className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
                   <div>
                     <p className="text-[0.64rem] font-semibold uppercase tracking-[0.24em] text-cyan/[0.84]">Full roster</p>
