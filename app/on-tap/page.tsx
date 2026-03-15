@@ -1,5 +1,5 @@
-import { OnTapPageContent } from '@/components/content-pages';
+import { notFound } from 'next/navigation';
 
 export default function OnTapPage() {
-  return <OnTapPageContent />;
+  notFound();
 }
