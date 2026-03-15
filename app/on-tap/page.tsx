@@ -7,9 +7,10 @@ import { motion } from 'framer-motion';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { Tv2 } from 'lucide-react';
-import { SiteFooter } from '@/components/site-footer';
-import { SiteNav } from '@/components/site-nav';
 
+// ==========================================
+// 1. DATA RENDERED DIRECTLY IN FILE
+// ==========================================
 const cocktails = [
   { name: 'Beachside Old Fashioned', build: 'Signature Build', accent: 'amber', asset: '/alcohol%20served/production%20cocktail/BEACHSIDE%20OLD%20FASHIONED.svg' },
   { name: 'Bechalada', build: 'Signature Build', accent: 'rose', asset: '/alcohol%20served/production%20cocktail/BECHALADA.svg' },
@@ -87,7 +88,16 @@ const cocktailAccentBackgrounds: Record<string, string> = {
   yellow: 'rgba(255, 219, 111, 0.2)'
 };
 
-function CocktailCard({ item, className = '' }: { item: (typeof cocktails)[number]; className?: string; }) {
+// ==========================================
+// 2. COCKTAIL CARD COMPONENT
+// ==========================================
+function CocktailCard({
+  item,
+  className = ''
+}: {
+  item: (typeof cocktails)[number];
+  className?: string;
+}) {
   return (
     <article className={`group relative overflow-hidden rounded-[1.6rem] border border-white/[0.08] bg-[#0a1520] ${className}`}>
       <div
@@ -118,8 +128,36 @@ function CocktailCard({ item, className = '' }: { item: (typeof cocktails)[numbe
   );
 }
 
-function PinnedCocktailGallery({ id, items }: { id: string; items: typeof cocktails; }) {
+// ==========================================
+// 3. MOBILE CHIP ROW
+// ==========================================
+function ChipRow({ items }: { items: string[] }) {
+  return (
+    <div className="mt-4 overflow-x-auto overflow-y-hidden overscroll-x-contain pb-2 sm:overflow-visible">
+      <div className="flex w-max gap-2 pr-3 sm:w-auto sm:flex-wrap sm:pr-0">
+        {items.map((item) => (
+          <span key={item} className="glass-chip shrink-0">
+            {item}
+          </span>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// ==========================================
+// 4. GSAP PINNED GALLERY COMPONENT
+// ==========================================
+function PinnedCocktailGallery({
+  id,
+  items
+}: {
+  id: string;
+  items: typeof cocktails;
+}) {
   const sectionRef = useRef<HTMLDivElement | null>(null);
+  const pinWrapRef = useRef<HTMLDivElement | null>(null);
+  const frameRef = useRef<HTMLDivElement | null>(null);
   const trackRef = useRef<HTMLDivElement | null>(null);
   const [isDesktop, setIsDesktop] = useState(false);
 
@@ -131,26 +169,33 @@ function PinnedCocktailGallery({ id, items }: { id: string; items: typeof cockta
   }, []);
 
   useEffect(() => {
-    if (!isDesktop || !sectionRef.current || !trackRef.current) return;
+    if (!isDesktop || !sectionRef.current || !pinWrapRef.current || !frameRef.current || !trackRef.current) return;
 
     gsap.registerPlugin(ScrollTrigger);
 
     const ctx = gsap.context(() => {
+      const frame = frameRef.current!;
       const track = trackRef.current!;
-      const getScrollAmount = () => -(track.scrollWidth - window.innerWidth + 80);
+
+      const getDistance = () => Math.max(0, track.scrollWidth - frame.clientWidth);
+
+      gsap.set(track, { x: 0 });
 
       gsap.to(track, {
-        x: getScrollAmount,
+        x: () => -getDistance(),
         ease: 'none',
         scrollTrigger: {
           trigger: sectionRef.current,
           start: 'top top',
-          end: () => `+=${track.scrollWidth}`,
-          pin: true,
-          scrub: 1.2,
-          invalidateOnRefresh: true
+          end: () => `+=${getDistance()}`,
+          pin: pinWrapRef.current,
+          scrub: 1.1,
+          invalidateOnRefresh: true,
+          anticipatePin: 1
         }
       });
+
+      ScrollTrigger.refresh();
     }, sectionRef);
 
     return () => ctx.revert();
@@ -167,30 +212,45 @@ function PinnedCocktailGallery({ id, items }: { id: string; items: typeof cockta
         <div className="mt-6 overflow-x-auto overflow-y-hidden overscroll-x-contain">
           <div className="flex w-max gap-4 pb-4 pr-5 md:gap-6">
             {items.map((item) => (
-              <CocktailCard key={item.name} item={item} className="aspect-[3/4] w-[78vw] max-w-[360px] shrink-0" />
+              <CocktailCard
+                key={item.name}
+                item={item}
+                className="aspect-[3/4] w-[78vw] max-w-[360px] shrink-0"
+              />
             ))}
           </div>
         </div>
       </section>
 
       <section ref={sectionRef} className="relative hidden bg-[#040b13] lg:block">
-        <div className="flex h-screen flex-col justify-center overflow-hidden py-12">
-          <div className="mb-12 flex items-end justify-between gap-6 px-8 xl:px-12">
-            <div className="max-w-3xl">
-              <p className="eyebrow text-cyan tracking-widest">Coastal cocktails</p>
-              <h2 className="mt-4 text-5xl uppercase leading-[0.94] text-cream">The full cocktail lineup.</h2>
-              <p className="mt-4 text-lg leading-6 text-cream/[0.68]">Keep scrolling. The gallery locks in and slides horizontally.</p>
+        <div ref={pinWrapRef} className="h-screen overflow-hidden">
+          <div className="flex h-screen flex-col justify-center py-12">
+            <div className="mb-12 flex items-end justify-between gap-6 px-8 xl:px-12">
+              <div className="max-w-3xl">
+                <p className="eyebrow text-cyan tracking-widest">Coastal cocktails</p>
+                <h2 className="mt-4 text-5xl uppercase leading-[0.94] text-cream">The full cocktail lineup.</h2>
+                <p className="mt-4 text-lg leading-6 text-cream/[0.68]">
+                  Keep scrolling. The gallery locks in and slides horizontally.
+                </p>
+              </div>
+              <div className="rounded-full border border-white/[0.08] bg-white/[0.04] px-4 py-3 text-[0.72rem] font-semibold uppercase tracking-[0.18em] text-cream/[0.62]">
+                Pinned horizontal gallery
+              </div>
             </div>
-            <div className="rounded-full border border-white/[0.08] bg-white/[0.04] px-4 py-3 text-[0.72rem] font-semibold uppercase tracking-[0.18em] text-cream/[0.62]">
-              Pinned horizontal gallery
-            </div>
-          </div>
 
-          <div className="w-full overflow-hidden">
-            <div ref={trackRef} className="flex h-[55vh] min-h-[400px] w-max items-stretch gap-6 px-8 xl:px-12">
-              {items.map((item) => (
-                <CocktailCard key={item.name} item={item} className="aspect-[3/4] h-full w-[320px] shrink-0 xl:w-[380px]" />
-              ))}
+            <div ref={frameRef} className="w-full overflow-hidden">
+              <div
+                ref={trackRef}
+                className="flex h-[55vh] min-h-[400px] w-max items-stretch gap-6 px-8 xl:px-12"
+              >
+                {items.map((item) => (
+                  <CocktailCard
+                    key={item.name}
+                    item={item}
+                    className="aspect-[3/4] h-full w-[320px] shrink-0 xl:w-[380px]"
+                  />
+                ))}
+              </div>
             </div>
           </div>
         </div>
@@ -199,6 +259,9 @@ function PinnedCocktailGallery({ id, items }: { id: string; items: typeof cockta
   );
 }
 
+// ==========================================
+// 5. MAIN PAGE EXPORT
+// ==========================================
 export default function OnTapPage() {
   const primaryCategory = tapCategories[0];
   const bottleCategory = tapCategories[1];
@@ -207,8 +270,6 @@ export default function OnTapPage() {
 
   return (
     <main className="page-shell min-h-screen overflow-x-hidden">
-      <SiteNav />
-
       <section className="px-4 pb-6 pt-28 md:px-8 md:pb-8 md:pt-32">
         <div className="relative mx-auto max-w-[1380px] overflow-hidden rounded-[2.15rem] border border-white/10 bg-white/[0.03] p-6 shadow-panel backdrop-blur-sm md:p-10">
           <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_72%_30%,rgba(107,231,255,0.12),transparent_24%),radial-gradient(circle_at_82%_62%,rgba(255,97,56,0.12),transparent_18%)]" />
@@ -225,8 +286,12 @@ export default function OnTapPage() {
               Drafts, bottles, cans, wine, and our signature cocktails. If it&apos;s behind the bar, it&apos;s listed here.
             </p>
             <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-              <Link href="/order" className="cta-primary">ORDER ONLINE →</Link>
-              <Link href="/menu" className="cta-secondary">VIEW FOOD MENU →</Link>
+              <Link href="/order" className="cta-primary">
+                ORDER ONLINE →
+              </Link>
+              <Link href="/menu" className="cta-secondary">
+                VIEW FOOD MENU →
+              </Link>
             </div>
           </motion.div>
         </div>
@@ -242,10 +307,12 @@ export default function OnTapPage() {
             transition={{ duration: 0.45 }}
           >
             <p className="eyebrow">Bar setup</p>
-            <h2 className="mt-4 text-4xl uppercase leading-[0.94] text-cream md:text-5xl">Real drafts. Bottles. Wine.</h2>
+            <h2 className="mt-4 text-4xl uppercase leading-[0.94] text-cream md:text-5xl">
+              Real drafts. Bottles. Wine.
+            </h2>
 
-            <div className="mt-10 grid gap-4 lg:grid-cols-2">
-              {primaryCategory ? (
+            <div className="mt-10 grid min-w-0 gap-4 lg:grid-cols-2">
+              {primaryCategory && (
                 <div className="group relative overflow-hidden rounded-[1.5rem] border border-white/[0.08] bg-[#09131d] p-6">
                   <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(135deg,rgba(107,231,255,0.06),transparent_48%)]" />
                   <div className="relative z-10 flex items-center gap-3">
@@ -254,7 +321,7 @@ export default function OnTapPage() {
                   </div>
                   <p className="relative z-10 mt-3 text-cream/[0.72]">{primaryCategory.copy}</p>
 
-                  {primaryCategory.assetCluster ? (
+                  {primaryCategory.assetCluster && (
                     <div className="relative z-10 mt-4 flex items-end gap-3">
                       {primaryCategory.assetCluster.map((asset) => (
                         <div key={asset} className="relative h-16 w-14 opacity-72 transition duration-300 group-hover:-translate-y-1 group-hover:opacity-95">
@@ -262,20 +329,14 @@ export default function OnTapPage() {
                         </div>
                       ))}
                     </div>
-                  ) : null}
+                  )}
 
-                  {primaryCategory.items ? (
-                    <div className="relative z-10 mt-6 flex flex-wrap gap-2">
-                      {primaryCategory.items.map((item) => (
-                        <span key={item} className="glass-chip">{item}</span>
-                      ))}
-                    </div>
-                  ) : null}
+                  {primaryCategory.items && <ChipRow items={primaryCategory.items} />}
                 </div>
-              ) : null}
+              )}
 
-              <div className="grid gap-4">
-                {bottleCategory ? (
+              <div className="grid min-w-0 gap-4">
+                {bottleCategory && (
                   <div className="group relative overflow-hidden rounded-[1.5rem] border border-white/[0.08] bg-[#09131d] p-6">
                     <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(135deg,rgba(255,157,87,0.06),transparent_48%)]" />
                     <div className="relative z-10 flex items-center gap-3">
@@ -283,7 +344,8 @@ export default function OnTapPage() {
                       <h3 className="text-xl uppercase leading-[0.94] text-cream">{bottleCategory.title}</h3>
                     </div>
                     <p className="relative z-10 mt-2 text-sm text-cream/[0.72]">{bottleCategory.copy}</p>
-                    {bottleCategory.assetCluster ? (
+
+                    {bottleCategory.assetCluster && (
                       <div className="relative z-10 mt-3 flex items-end gap-3">
                         {bottleCategory.assetCluster.map((asset) => (
                           <div key={asset} className="relative h-12 w-10 opacity-72 transition duration-300 group-hover:-translate-y-1 group-hover:opacity-95">
@@ -291,18 +353,13 @@ export default function OnTapPage() {
                           </div>
                         ))}
                       </div>
-                    ) : null}
-                    {bottleCategory.items ? (
-                      <div className="relative z-10 mt-4 flex flex-wrap gap-2">
-                        {bottleCategory.items.map((item) => (
-                          <span key={item} className="glass-chip">{item}</span>
-                        ))}
-                      </div>
-                    ) : null}
-                  </div>
-                ) : null}
+                    )}
 
-                {wineCategory ? (
+                    {bottleCategory.items && <ChipRow items={bottleCategory.items} />}
+                  </div>
+                )}
+
+                {wineCategory && (
                   <div className="group relative overflow-hidden rounded-[1.5rem] border border-white/[0.08] bg-[#09131d] p-6">
                     <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(135deg,rgba(180,126,255,0.06),transparent_48%)]" />
                     <div className="relative z-10 flex items-center gap-3">
@@ -310,45 +367,74 @@ export default function OnTapPage() {
                       <h3 className="text-xl uppercase leading-[0.94] text-cream">{wineCategory.title}</h3>
                     </div>
                     <p className="relative z-10 mt-2 text-sm text-cream/[0.72]">{wineCategory.copy}</p>
-                    {'accentAsset' in wineCategory && wineCategory.accentAsset ? (
+
+                    {wineCategory.accentAsset && (
                       <div className="pointer-events-none absolute right-6 top-6 h-16 w-12 opacity-40">
                         <Image src={wineCategory.accentAsset} alt="Wine" fill unoptimized sizes="48px" className="object-contain object-right-top" />
                       </div>
-                    ) : null}
-                    {wineCategory.items ? (
-                      <div className="relative z-10 mt-4 flex flex-wrap gap-2">
-                        {wineCategory.items.map((item) => (
-                          <span key={item} className="glass-chip">{item}</span>
-                        ))}
-                      </div>
-                    ) : null}
-                  </div>
-                ) : null}
+                    )}
 
-                {nonAlcoholicCategory ? (
-                  <div className="relative overflow-hidden rounded-[1.5rem] border border-white/[0.08] bg-[#09131d] p-6">
+                    {wineCategory.items && <ChipRow items={wineCategory.items} />}
+                  </div>
+                )}
+
+                {nonAlcoholicCategory && (
+                  <div className="overflow-hidden rounded-[1.5rem] border border-white/[0.08] bg-[#09131d] p-6">
                     <div className="flex items-center gap-3">
                       <Tv2 className="h-5 w-5 text-cyan" />
                       <h3 className="text-xl uppercase leading-[0.94] text-cream">{nonAlcoholicCategory.title}</h3>
                     </div>
-                    {nonAlcoholicCategory.items ? (
-                      <div className="mt-4 flex flex-wrap gap-2">
-                        {nonAlcoholicCategory.items.map((item) => (
-                          <span key={item} className="glass-chip">{item}</span>
-                        ))}
-                      </div>
-                    ) : null}
+                    {nonAlcoholicCategory.items && <ChipRow items={nonAlcoholicCategory.items} />}
                   </div>
-                ) : null}
+                )}
               </div>
             </div>
           </motion.article>
 
           <PinnedCocktailGallery id="cocktail-gallery" items={cocktails} />
+
+          <motion.article
+            className="section-shell p-5 md:p-6"
+            initial={{ opacity: 0, y: 24 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={viewport}
+            transition={{ duration: 0.45, delay: 0.04 }}
+          >
+            <div className="rounded-[1.35rem] border border-white/[0.08] bg-[#09131d] p-5 md:p-6">
+              <div className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
+                <div>
+                  <p className="text-[0.64rem] font-semibold uppercase tracking-[0.24em] text-cyan/[0.84]">Full roster</p>
+                  <h3 className="mt-3 text-2xl uppercase leading-[0.94] text-cream md:text-[2rem]">Every cocktail on the board.</h3>
+                </div>
+                <p className="max-w-md text-sm leading-6 text-cream/[0.62]">
+                  Signature pours, listed clearly for people who want the lineup without the sideways gallery.
+                </p>
+              </div>
+
+              <div className="mt-6 grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+                {cocktails.map((item, index) => (
+                  <motion.div
+                    key={item.name}
+                    className="rounded-[1.05rem] border border-white/[0.08] bg-white/[0.03] px-4 py-4"
+                    initial={{ opacity: 0, y: 14 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={viewport}
+                    transition={{ duration: 0.3, delay: index * 0.02 }}
+                  >
+                    <div className="flex items-start gap-3">
+                      <span className="mt-1 h-2 w-2 shrink-0 rounded-full bg-cyan/80" />
+                      <div>
+                        <h4 className="text-[1rem] font-semibold uppercase leading-[0.98] text-cream">{item.name}</h4>
+                        <p className="mt-2 text-sm leading-6 text-cream/[0.68]">{item.build}</p>
+                      </div>
+                    </div>
+                  </motion.div>
+                ))}
+              </div>
+            </div>
+          </motion.article>
         </div>
       </section>
-
-      <SiteFooter />
     </main>
   );
 }
