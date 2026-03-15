@@ -1,11 +1,9 @@
 'use client';
 
 import Image from 'next/image';
-import { useEffect, useRef, useState, type ReactNode } from 'react';
+import { useEffect, useState, type ReactNode } from 'react';
 import Link from 'next/link';
 import { motion, useScroll, useTransform } from 'framer-motion';
-import gsap from 'gsap';
-import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { ArrowRight, CalendarDays, Clock3, Mail, MapPin, Martini, ShoppingBag, Ticket, Truck, Tv2 } from 'lucide-react';
 import { BookingForm } from './booking-form';
 import { SiteFooter } from './site-footer';
@@ -38,8 +36,6 @@ import {
 } from '@/lib/production-site-data';
 
 const viewport = { once: true, amount: 0.18 };
-
-gsap.registerPlugin(ScrollTrigger);
 
 type FulfillmentMode = 'pickup' | 'delivery';
 
@@ -197,66 +193,23 @@ function PinnedCocktailGallery({
   items: typeof cocktails;
   notes: Map<string, string>;
 }) {
-  const sectionRef = useRef<HTMLElement | null>(null);
-  const viewportRef = useRef<HTMLDivElement | null>(null);
-  const trackRef = useRef<HTMLDivElement | null>(null);
-
-  useEffect(() => {
-    const section = sectionRef.current;
-    const viewportEl = viewportRef.current;
-    const track = trackRef.current;
-
-    if (!section || !viewportEl || !track) {
-      return;
-    }
-
-    if (typeof window !== 'undefined' && window.matchMedia('(max-width: 1023px)').matches) {
-      gsap.set(track, { clearProps: 'transform' });
-      return;
-    }
-
-    const context = gsap.context(() => {
-      const getTravel = () => Math.max(0, track.scrollWidth - viewportEl.clientWidth);
-
-      gsap.set(track, { x: 0 });
-
-      gsap.to(track, {
-        x: () => -getTravel(),
-        ease: 'none',
-        scrollTrigger: {
-          trigger: section,
-          start: 'top top',
-          end: () => `+=${getTravel()}`,
-          pin: viewportEl,
-          scrub: 1.6,
-          invalidateOnRefresh: true,
-          anticipatePin: 1
-        }
-      });
-    }, section);
-
-    return () => {
-      context.revert();
-    };
-  }, [items]);
-
   return (
-    <section ref={sectionRef} className="mt-12">
-      <div ref={viewportRef} className="overflow-x-auto lg:overflow-hidden rounded-[1.8rem] border border-white/[0.08] bg-[#07121c] shadow-[0_30px_80px_rgba(2,8,14,0.42)]">
+    <section className="mt-12">
+      <div className="overflow-x-auto rounded-[1.8rem] border border-white/[0.08] bg-[#07121c] shadow-[0_30px_80px_rgba(2,8,14,0.42)]">
         <div className="border-b border-white/[0.06] px-5 py-5 md:px-7">
           <p className="eyebrow">Cocktail gallery</p>
           <div className="mt-3 flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
             <div className="max-w-2xl">
               <h3 className="text-3xl uppercase leading-[0.92] text-cream md:text-4xl">Scroll into the full pour lineup.</h3>
               <p className="mt-3 text-sm leading-6 text-cream/[0.68] md:text-base">
-                Keep scrolling. The gallery locks in place and runs through every cocktail poster from right to left before the page drops back into the rest of the bar menu.
+                The full poster lineup stays visible in a horizontal gallery, so the art reads clearly without hijacking page scroll.
               </p>
             </div>
-            <p className="text-[0.68rem] font-semibold uppercase tracking-[0.24em] text-cyan/[0.82]">Pinned horizontal motion</p>
+            <p className="text-[0.68rem] font-semibold uppercase tracking-[0.24em] text-cyan/[0.82]">Horizontal gallery</p>
           </div>
         </div>
 
-        <div ref={trackRef} className="flex gap-4 px-5 py-5 md:gap-6 md:px-7 md:py-7 lg:will-change-transform">
+        <div className="flex gap-4 px-5 py-5 md:gap-6 md:px-7 md:py-7">
           {items.map((item, index) => (
             <article
               key={item.name}
