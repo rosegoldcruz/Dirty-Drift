@@ -247,9 +247,6 @@ function PinnedCocktailGallery({
 export function OnTapPageContent() {
   const [featuredIndex, setFeaturedIndex] = useState(0);
   const [activeSelector, setActiveSelector] = useState('spotlight');
-  const { scrollYProgress } = useScroll();
-  const heroAssetY = useTransform(scrollYProgress, [0, 0.22], [0, 36]);
-  const heroGlowOpacity = useTransform(scrollYProgress, [0, 0.18], [0.48, 0.18]);
 
   useEffect(() => {
     const intervalId = window.setInterval(() => {
@@ -346,64 +343,48 @@ export function OnTapPageContent() {
             </motion.div>
 
             <motion.div
-              className="relative min-h-[340px] overflow-hidden rounded-[1.95rem] border border-white/[0.08] bg-[#08131f] p-5 md:min-h-[430px] md:p-8"
+              className="overflow-hidden rounded-[1.95rem] border border-white/[0.08] bg-[#08131f] p-5 md:p-8"
               initial={{ opacity: 0, y: 24 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: 0.08, ease: [0.16, 1, 0.3, 1] }}
             >
-              <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(115deg,rgba(5,14,23,0.92)_20%,rgba(5,14,23,0.72)_44%,rgba(5,14,23,0.16)_76%)]" />
-              <motion.div
-                className="absolute right-[10%] top-[14%] h-44 w-44 rounded-full bg-rust/30 blur-3xl md:h-56 md:w-56"
-                style={{ opacity: heroGlowOpacity }}
-              />
-              <motion.div
-                key={featuredCocktail.name}
-                className="pointer-events-none absolute bottom-[-4%] right-[-1%] top-[6%] w-[70%] md:bottom-[-8%] md:right-[-4%] md:top-[4%] md:w-[76%]"
-                initial={{ opacity: 0, scale: 0.94, y: 20 }}
-                animate={{ opacity: 1, scale: 1, y: 0 }}
-                transition={{ duration: 0.55, ease: [0.16, 1, 0.3, 1] }}
-                style={{ y: heroAssetY }}
-              >
-                <Image
-                  src={featuredCocktail.image}
-                  alt={featuredCocktail.name}
-                  fill
-                  unoptimized
-                  sizes="(min-width: 1280px) 34vw, (min-width: 768px) 40vw, 90vw"
-                  className="object-contain object-right-bottom scale-[1.88] drop-shadow-[0_28px_52px_rgba(0,0,0,0.52)] md:scale-[2.15]"
-                />
-              </motion.div>
-              <div className="relative flex h-full flex-col justify-between">
-                <div className="max-w-[18rem] rounded-[1.35rem] border border-white/[0.08] bg-[#0a1520]/82 p-4 backdrop-blur-md md:max-w-[19.5rem] md:p-5">
-                  <p className="eyebrow">Featured cocktail</p>
-                  <h2 className="mt-3 text-3xl uppercase leading-[0.94] text-cream md:text-[2.2rem]">{featuredCocktail.name}</h2>
-                  <p className="mt-3 text-sm leading-6 text-cream/[0.7]">{featuredCocktail.note}</p>
+              <div className="flex flex-col gap-5 sm:flex-row sm:items-start sm:justify-between">
+                <div>
+                  <p className="eyebrow">Happy hour</p>
+                  <h2 className="mt-4 text-3xl uppercase leading-[0.94] text-cream md:text-[2.5rem]">Daily until 7pm. Enough reason to pull up early.</h2>
                 </div>
-
-                <div className="max-w-[22rem] rounded-[1.3rem] border border-white/[0.08] bg-[#09131b]/80 p-4 backdrop-blur-md md:p-5">
-                  <div className="flex items-end justify-between gap-4">
-                    <div>
-                      <p className="text-[0.64rem] font-semibold uppercase tracking-[0.24em] text-cyan/[0.84]">Current spotlight</p>
-                      <p className="mt-2 text-sm leading-6 text-cream/[0.68]">
-                        Everything we’re pouring, all in one place.
-                      </p>
+                <div className="flex shrink-0 items-end gap-3">
+                  {happyHourAssets.map((item) => (
+                    <div key={item.name} className="relative h-20 w-14">
+                      <Image src={item.image} alt={item.name} fill unoptimized sizes="56px" className="object-contain object-bottom" />
                     </div>
-                    <p className="shrink-0 text-[0.64rem] font-semibold uppercase tracking-[0.24em] text-cream/[0.46]">
-                      0{featuredIndex + 1}/0{featuredCocktails.length}
-                    </p>
+                  ))}
+                </div>
+              </div>
+              <div className="mt-6 flex flex-col gap-3 sm:flex-row">
+                <Link href={happyHourPageHref} className="cta-primary">SEE HAPPY HOUR →</Link>
+                <div className="rounded-full border border-white/[0.08] bg-white/[0.04] px-4 py-3 text-[0.72rem] font-semibold uppercase tracking-[0.18em] text-cream/[0.62]">Daily window · Drinks + food</div>
+              </div>
+              <div className="mt-7 grid gap-4 sm:grid-cols-2">
+                <div className="rounded-[1.3rem] border border-white/[0.08] bg-[#0a1520] p-4">
+                  <p className="text-[0.64rem] font-semibold uppercase tracking-[0.24em] text-cyan/[0.84]">Drink deals</p>
+                  <div className="mt-3 grid gap-2">
+                    {happyHourDrinkItems.map((item) => (
+                      <div key={item.title} className="rounded-[0.95rem] border border-white/[0.08] bg-white/[0.03] px-3 py-3">
+                        <h3 className="text-base uppercase leading-[0.96] text-cream">{item.title}</h3>
+                        <p className="mt-1 text-sm leading-5 text-cream/[0.68]">{item.copy}</p>
+                      </div>
+                    ))}
                   </div>
-                  <div className="mt-4 flex items-center gap-2">
-                    {featuredCocktails.map((item, index) => (
-                      <button
-                        key={item.name}
-                        type="button"
-                        onClick={() => {
-                          setFeaturedIndex(index);
-                          setActiveSelector('spotlight');
-                        }}
-                        className={`h-2 rounded-full transition duration-300 ${index === featuredIndex ? 'w-10 bg-cyan' : 'w-2 bg-white/25 hover:bg-white/45'}`}
-                        aria-label={`Show featured cocktail ${item.name}`}
-                      />
+                </div>
+                <div className="rounded-[1.3rem] border border-white/[0.08] bg-[#0a1520] p-4">
+                  <p className="text-[0.64rem] font-semibold uppercase tracking-[0.24em] text-cyan/[0.84]">Food deals</p>
+                  <div className="mt-3 grid gap-2">
+                    {happyHourFoodItems.map((item) => (
+                      <div key={item.title} className="rounded-[0.95rem] border border-white/[0.08] bg-white/[0.03] px-3 py-3">
+                        <h3 className="text-base uppercase leading-[0.96] text-cream">{item.title}</h3>
+                        <p className="mt-1 text-sm leading-5 text-cream/[0.68]">{item.copy}</p>
+                      </div>
                     ))}
                   </div>
                 </div>
