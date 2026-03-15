@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { OnTapPageContent } from '@/components/content-pages';
+import { OnTapClient } from './OnTapClient';
 
 export const metadata: Metadata = {
   title: 'On Tap | Driftwoods Sports Grill',
@@ -8,5 +8,5 @@ export const metadata: Metadata = {
 };
 
 export default function OnTapPage() {
-  return <OnTapPageContent />;
+  return <OnTapClient />;
 }
