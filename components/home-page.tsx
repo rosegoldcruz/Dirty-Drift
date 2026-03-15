@@ -514,8 +514,7 @@ function WhatsOnSection() {
             <span className="block text-cyan/90">Stay for the night.</span>
           </h2>
           <p className="mt-5 max-w-2xl text-base leading-7 text-cream/[0.68] md:text-lg">
-            This grid is built to stay fresh without redesign work. Swap in game-day pull, patio
-            nights, music, specials, and whatever the room is pushing right now.
+            Game days, patio nights, live music, weekly specials, and whatever the room is pushing right now.
           </p>
         </Reveal>
 

@@ -195,21 +195,15 @@ function PinnedCocktailGallery({
 }) {
   return (
     <section className="mt-12">
-      <div className="overflow-x-auto rounded-[1.8rem] border border-white/[0.08] bg-[#07121c] shadow-[0_30px_80px_rgba(2,8,14,0.42)]">
+      <div className="overflow-x-auto overscroll-x-contain rounded-[1.8rem] border border-white/[0.08] bg-[#07121c] shadow-[0_30px_80px_rgba(2,8,14,0.42)]">
         <div className="border-b border-white/[0.06] px-5 py-5 md:px-7">
           <p className="eyebrow">Cocktail gallery</p>
-          <div className="mt-3 flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
-            <div className="max-w-2xl">
-              <h3 className="text-3xl uppercase leading-[0.92] text-cream md:text-4xl">Scroll into the full pour lineup.</h3>
-              <p className="mt-3 text-sm leading-6 text-cream/[0.68] md:text-base">
-                The full poster lineup stays visible in a horizontal gallery, so the art reads clearly without hijacking page scroll.
-              </p>
-            </div>
-            <p className="text-[0.68rem] font-semibold uppercase tracking-[0.24em] text-cyan/[0.82]">Horizontal gallery</p>
+          <div className="mt-3">
+            <h3 className="text-3xl uppercase leading-[0.92] text-cream md:text-4xl">Scroll into the full pour lineup.</h3>
           </div>
         </div>
 
-        <div className="flex gap-4 px-5 py-5 md:gap-6 md:px-7 md:py-7">
+        <div className="flex gap-4 px-5 pb-4 pt-5 md:gap-6 md:px-7 md:py-7">
           {items.map((item, index) => (
             <article
               key={item.name}
@@ -618,7 +612,7 @@ export function OnTapPageContent() {
           <div className="grid gap-5">
             <motion.article
               id="cocktail-guide"
-              className="section-shell overflow-hidden p-5 md:p-6"
+              className="section-shell overflow-visible p-5 md:p-6"
               initial={{ opacity: 0, y: 24 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={viewport}
@@ -626,10 +620,7 @@ export function OnTapPageContent() {
             >
               <p className="eyebrow">Coastal cocktails</p>
               <div className="mt-4 max-w-2xl">
-                <h2 className="text-4xl uppercase leading-[0.94] text-cream md:text-5xl">Cocktail posters. Full scroll. No tiny throwaway cards.</h2>
-                <p className="mt-4 text-base leading-7 text-cream/[0.74]">
-                  The image section now uses a pinned horizontal gallery instead of cramming poster art into undersized cards. Scroll down into it, move through the full set, then drop back into the rest of the list.
-                </p>
+                <h2 className="text-4xl uppercase leading-[0.94] text-cream md:text-5xl">The full cocktail lineup.</h2>
               </div>
 
               <PinnedCocktailGallery items={cocktails} notes={featuredCocktailNotes} />
@@ -680,7 +671,7 @@ export function OnTapPageContent() {
                   <p className="eyebrow">Happy hour</p>
                   <h2 className="mt-4 text-3xl uppercase leading-[0.94] text-cream md:text-[2.5rem]">Daily until 7pm. Enough reason to pull up early.</h2>
                   <p className="mt-4 text-base leading-7 text-cream/[0.72]">
-                    This block gets a little more lift than the rest of the lower page. Drinks stay easy to read, food stays grouped, and the whole thing lands like an actual move instead of a leftover utility module.
+                    Drafts, wells, house wine, and bar bites. All available daily until 7pm.
                   </p>
                 </div>
                 <div className="flex items-end gap-3 md:pt-2">
@@ -792,7 +783,7 @@ export function EventsPageContent() {
               viewport={viewport}
               transition={{ duration: 0.45, delay: 0.05 }}
             >
-              <p className="eyebrow">What this page carries</p>
+              <p className="eyebrow">What's happening</p>
               <div className="mt-6 grid gap-4">
                 {eventTracks.map((item) => (
                   <div key={item.title} className="rounded-[1.2rem] border border-white/[0.1] bg-[#0a1520] p-4">
@@ -858,8 +849,8 @@ export function OrderPageContent() {
             </h2>
             <p className="mt-5 text-base leading-7 text-cream/[0.74] md:text-lg">
               {mode === 'pickup'
-                ? 'Best when you want the food fast, the handoff clean, and the order placed without an extra layer of confusion.'
-                : 'Best when the night is staying put and the food needs to come to you instead.'}
+                ? 'Order ahead and grab it when you\'re ready. Fast, clean, no wait.'
+                : 'Staying in? Get the food brought to you through your preferred service.'}
             </p>
 
             <div className="mt-6 grid gap-3 sm:grid-cols-2">
@@ -876,7 +867,7 @@ export function OrderPageContent() {
                   <ShoppingBag className="h-5 w-5 text-cyan" />
                   <span className="text-lg uppercase tracking-[0.08em]">Pickup</span>
                 </div>
-                <p className="mt-3 text-sm leading-6">Grab it and go.</p>
+                <p className="mt-3 text-sm leading-6">Ready in minutes.</p>
               </button>
               <button
                 type="button"
@@ -891,17 +882,17 @@ export function OrderPageContent() {
                   <Truck className="h-5 w-5 text-cyan" />
                   <span className="text-lg uppercase tracking-[0.08em]">Delivery</span>
                 </div>
-                <p className="mt-3 text-sm leading-6">Keep the group where it is.</p>
+                <p className="mt-3 text-sm leading-6">We bring it to you.</p>
               </button>
             </div>
 
             <div className="mt-6 grid gap-3">
               <div className="rounded-[1.2rem] border border-white/[0.1] bg-[#0a1520] p-4">
-                <p className="text-[0.68rem] font-semibold uppercase tracking-[0.22em] text-cyan/[0.82]">Right now</p>
+                <p className="text-[0.68rem] font-semibold uppercase tracking-[0.22em] text-cyan/[0.82]">{mode === 'pickup' ? 'Pickup' : 'Delivery'}</p>
                 <p className="mt-3 text-base leading-7 text-cream/[0.78]">
                   {mode === 'pickup'
-                    ? 'Use this mode when you want the fastest route to placing a takeout order.'
-                    : 'Use this mode when the order needs to travel and the app ecosystem matters more.'}
+                    ? 'Order online and pick up at 9832 N 7th St. Skip the wait.'
+                    : 'Get it delivered straight to your door through your preferred service.'}
                 </p>
               </div>
               <div className="rounded-[1.2rem] border border-white/[0.1] bg-[#0a1520] p-4">
@@ -909,7 +900,7 @@ export function OrderPageContent() {
                   <MapPin className="h-4 w-4 text-cyan" />
                   <p className="text-lg uppercase leading-[0.96] text-cream">9832 N 7th St, Phoenix, AZ 85020</p>
                 </div>
-                <p className="mt-3 text-sm leading-6 text-cream/[0.72]">If the move changes from ordering in to pulling up, directions are one tap away.</p>
+                <p className="mt-3 text-sm leading-6 text-cream/[0.72]">Sunnyslope · North Phoenix</p>
               </div>
             </div>
           </motion.aside>
@@ -1143,7 +1134,7 @@ export function PrivateBookingsPageContent() {
             viewport={viewport}
             transition={{ duration: 0.45 }}
           >
-            <p className="eyebrow">Use this page for</p>
+            <p className="eyebrow">Reserve your spot</p>
             <div className="mt-6 grid gap-4">
               {[
                 {
