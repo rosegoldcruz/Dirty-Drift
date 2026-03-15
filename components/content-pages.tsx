@@ -1,9 +1,12 @@
 'use client';
 
 import Image from 'next/image';
-import { useEffect, useRef, useState, type ReactNode } from 'react';
 import Link from 'next/link';
-import { motion, useScroll, useTransform } from 'framer-motion';
+import { useEffect, useRef, useState, type ReactNode } from 'react';
+import { motion } from 'framer-motion';
+import gsap from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import Lenis from 'lenis';
 import { ArrowRight, CalendarDays, Clock3, Mail, MapPin, Martini, ShoppingBag, Ticket, Truck, Tv2 } from 'lucide-react';
 import { BookingForm } from './booking-form';
 import { SiteFooter } from './site-footer';
@@ -91,6 +94,26 @@ function PageHero({
         </motion.div>
       </div>
     </section>
+  );
+}
+
+function ScrollableChipRow({
+  items,
+  className = ''
+}: {
+  items: string[];
+  className?: string;
+}) {
+  return (
+    <div className={`relative overflow-x-auto overflow-y-hidden overscroll-x-contain pb-1 ${className}`}>
+      <div className="flex w-max gap-2 pr-3 sm:flex-wrap sm:w-auto sm:pr-0">
+        {items.map((item) => (
+          <span key={item} className="glass-chip shrink-0">
+            {item}
+          </span>
+        ))}
+      </div>
+    </div>
   );
 }
 
@@ -194,10 +217,10 @@ const cocktailAccentBackgrounds: Record<string, string> = {
 
 function CocktailCard({
   item,
-  className
+  className = ''
 }: {
   item: (typeof cocktails)[number];
-  className: string;
+  className?: string;
 }) {
   return (
     <article
@@ -234,49 +257,75 @@ function PinnedCocktailGallery({
   id: string;
   items: typeof cocktails;
 }) {
-  const sectionRef = useRef<HTMLDivElement | null>(null);
+  const desktopSectionRef = useRef<HTMLDivElement | null>(null);
+  const pinRef = useRef<HTMLDivElement | null>(null);
   const frameRef = useRef<HTMLDivElement | null>(null);
   const trackRef = useRef<HTMLDivElement | null>(null);
-  const stickyRef = useRef<HTMLDivElement | null>(null);
-
-  const [travel, setTravel] = useState(0);
-  const [sectionHeight, setSectionHeight] = useState(1100);
+  const [isDesktop, setIsDesktop] = useState(false);
 
   useEffect(() => {
-    const measure = () => {
-      const frameWidth = frameRef.current?.clientWidth ?? 0;
-      const trackWidth = trackRef.current?.scrollWidth ?? 0;
-      const stickyHeight = stickyRef.current?.offsetHeight ?? 720;
-      const nextTravel = Math.max(0, trackWidth - frameWidth);
-      const nextSectionHeight = Math.max(stickyHeight + nextTravel + 120, stickyHeight + 320);
+    const onResize = () => setIsDesktop(window.innerWidth >= 1024);
+    onResize();
+    window.addEventListener('resize', onResize);
+    return () => window.removeEventListener('resize', onResize);
+  }, []);
 
-      setTravel(nextTravel);
-      setSectionHeight(nextSectionHeight);
+  useEffect(() => {
+    if (!isDesktop) return;
+    if (!desktopSectionRef.current || !pinRef.current || !frameRef.current || !trackRef.current) return;
+
+    gsap.registerPlugin(ScrollTrigger);
+
+    const lenis = new Lenis({
+      duration: 1.6,
+      smoothWheel: true,
+      smoothTouch: false,
+      wheelMultiplier: 0.8,
+      touchMultiplier: 1.0
+    });
+
+    const raf = (time: number) => {
+      lenis.raf(time);
     };
 
-    measure();
+    gsap.ticker.add(raf);
+    gsap.ticker.lagSmoothing(0);
+    lenis.on('scroll', ScrollTrigger.update);
 
-    const ro = typeof ResizeObserver !== 'undefined' ? new ResizeObserver(measure) : null;
-    if (ro) {
-      if (frameRef.current) ro.observe(frameRef.current);
-      if (trackRef.current) ro.observe(trackRef.current);
-      if (stickyRef.current) ro.observe(stickyRef.current);
-    }
+    const ctx = gsap.context(() => {
+      const calculate = () => {
+        const frameWidth = frameRef.current?.clientWidth ?? 0;
+        const trackWidth = trackRef.current?.scrollWidth ?? 0;
+        return Math.max(0, trackWidth - frameWidth);
+      };
 
-    window.addEventListener('resize', measure);
+      const tween = gsap.to(trackRef.current, {
+        x: () => -calculate(),
+        ease: 'none',
+        paused: true
+      });
+
+      ScrollTrigger.create({
+        trigger: desktopSectionRef.current,
+        start: 'top top',
+        end: () => `+=${calculate()}`,
+        pin: pinRef.current,
+        scrub: 1.6,
+        invalidateOnRefresh: true,
+        anticipatePin: 1,
+        animation: tween
+      });
+
+      ScrollTrigger.refresh();
+    }, desktopSectionRef);
 
     return () => {
-      ro?.disconnect();
-      window.removeEventListener('resize', measure);
+      ctx.revert();
+      gsap.ticker.remove(raf);
+      lenis.destroy();
+      ScrollTrigger.refresh();
     };
-  }, [items.length]);
-
-  const { scrollYProgress } = useScroll({
-    target: sectionRef,
-    offset: ['start start', 'end end']
-  });
-
-  const x = useTransform(scrollYProgress, [0, 1], [0, -travel]);
+  }, [isDesktop, items]);
 
   return (
     <div id={id} className="scroll-mt-32 md:scroll-mt-36">
@@ -300,19 +349,15 @@ function PinnedCocktailGallery({
         </div>
       </section>
 
-      <section
-        ref={sectionRef}
-        className="relative hidden overflow-hidden lg:block"
-        style={{ height: sectionHeight }}
-      >
-        <div ref={stickyRef} className="sticky top-28">
-          <div className="section-shell overflow-hidden p-6 xl:p-7">
+      <section ref={desktopSectionRef} className="relative hidden lg:block">
+        <div ref={pinRef} className="h-screen overflow-hidden">
+          <div className="section-shell flex h-[calc(100vh-2rem)] flex-col overflow-hidden p-6 xl:p-7">
             <div className="flex items-end justify-between gap-6">
               <div className="max-w-3xl">
                 <p className="eyebrow">Coastal cocktails</p>
                 <h2 className="mt-4 text-5xl uppercase leading-[0.94] text-cream">The full cocktail lineup.</h2>
                 <p className="mt-4 text-sm leading-6 text-cream/[0.68]">
-                  Scroll down. The cocktail wall pins and moves sideways instead of spilling the page width.
+                  Scroll down. The cocktail gallery pins and moves sideways until the final card is fully visible.
                 </p>
               </div>
               <div className="rounded-full border border-white/[0.08] bg-white/[0.04] px-4 py-3 text-[0.72rem] font-semibold uppercase tracking-[0.18em] text-cream/[0.62]">
@@ -320,20 +365,19 @@ function PinnedCocktailGallery({
               </div>
             </div>
 
-            <div ref={frameRef} className="mt-7 overflow-hidden">
-              <motion.div
+            <div ref={frameRef} className="mt-7 min-h-0 flex-1 overflow-hidden">
+              <div
                 ref={trackRef}
-                style={{ x }}
-                className="flex w-max gap-6"
+                className="flex h-full w-max items-stretch gap-6"
               >
                 {items.map((item) => (
                   <CocktailCard
                     key={item.name}
                     item={item}
-                    className="aspect-[3/4] w-[300px] shrink-0"
+                    className="aspect-[3/4] h-full w-[280px] shrink-0 xl:w-[300px]"
                   />
                 ))}
-              </motion.div>
+              </div>
             </div>
           </div>
         </div>
@@ -411,17 +455,17 @@ export function OnTapPageContent() {
 
   return (
     <PageShell>
-      <section id="spotlight" className="px-4 pb-6 pt-28 md:px-8 md:pb-8 md:pt-32">
+      <section id="spotlight" className="overflow-x-hidden px-4 pb-6 pt-28 md:px-8 md:pb-8 md:pt-32">
         <div className="relative mx-auto max-w-[1380px] overflow-hidden rounded-[2.15rem] border border-white/10 bg-white/[0.03] p-6 shadow-panel backdrop-blur-sm md:p-10">
           <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_72%_30%,rgba(107,231,255,0.12),transparent_24%),radial-gradient(circle_at_82%_62%,rgba(255,97,56,0.12),transparent_18%)]" />
           <div className="pointer-events-none absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-white/0 via-white/18 to-white/0" />
 
-          <div className="relative grid gap-8 xl:grid-cols-[0.98fr_1.02fr] xl:items-center">
+          <div className="relative grid min-w-0 gap-8 xl:grid-cols-[0.98fr_1.02fr] xl:items-center">
             <motion.div
               initial={{ opacity: 0, y: 24 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-              className="max-w-4xl xl:pr-4"
+              className="min-w-0 max-w-4xl xl:pr-4"
             >
               <p className="eyebrow">SEE WHAT&apos;S ON TAP</p>
               <h1 className="mt-4 text-5xl uppercase leading-[0.9] text-cream md:text-7xl">SEE WHAT&apos;S ON TAP.</h1>
@@ -442,13 +486,13 @@ export function OnTapPageContent() {
             </motion.div>
 
             <motion.div
-              className="overflow-hidden rounded-[1.95rem] border border-white/[0.08] bg-[#08131f] p-5 md:p-8"
+              className="min-w-0 overflow-hidden rounded-[1.95rem] border border-white/[0.08] bg-[#08131f] p-5 md:p-8"
               initial={{ opacity: 0, y: 24 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: 0.08, ease: [0.16, 1, 0.3, 1] }}
             >
-              <div className="flex flex-col gap-5 sm:flex-row sm:items-start sm:justify-between">
-                <div>
+              <div className="flex min-w-0 flex-col gap-5 sm:flex-row sm:items-start sm:justify-between">
+                <div className="min-w-0">
                   <p className="eyebrow">Happy hour</p>
                   <h2 className="mt-4 text-3xl uppercase leading-[0.94] text-cream md:text-[2.5rem]">Daily until 7pm. Enough reason to pull up early.</h2>
                 </div>
@@ -464,8 +508,8 @@ export function OnTapPageContent() {
                 <Link href={happyHourPageHref} className="cta-primary">SEE HAPPY HOUR →</Link>
                 <div className="rounded-full border border-white/[0.08] bg-white/[0.04] px-4 py-3 text-[0.72rem] font-semibold uppercase tracking-[0.18em] text-cream/[0.62]">Daily window · Drinks + food</div>
               </div>
-              <div className="mt-7 grid gap-4 sm:grid-cols-2">
-                <div className="rounded-[1.3rem] border border-white/[0.08] bg-[#0a1520] p-4">
+              <div className="mt-7 grid min-w-0 gap-4 sm:grid-cols-2">
+                <div className="min-w-0 rounded-[1.3rem] border border-white/[0.08] bg-[#0a1520] p-4">
                   <p className="text-[0.64rem] font-semibold uppercase tracking-[0.24em] text-cyan/[0.84]">Drink deals</p>
                   <div className="mt-3 grid gap-2">
                     {happyHourDrinkItems.map((item) => (
@@ -476,7 +520,7 @@ export function OnTapPageContent() {
                     ))}
                   </div>
                 </div>
-                <div className="rounded-[1.3rem] border border-white/[0.08] bg-[#0a1520] p-4">
+                <div className="min-w-0 rounded-[1.3rem] border border-white/[0.08] bg-[#0a1520] p-4">
                   <p className="text-[0.64rem] font-semibold uppercase tracking-[0.24em] text-cyan/[0.84]">Food deals</p>
                   <div className="mt-3 grid gap-2">
                     {happyHourFoodItems.map((item) => (
@@ -491,7 +535,7 @@ export function OnTapPageContent() {
             </motion.div>
           </div>
 
-          <div className="relative mt-8 grid gap-3 lg:grid-cols-4">
+          <div className="relative mt-8 grid min-w-0 gap-3 lg:grid-cols-4">
             {selectorItems.map((item, index) => {
               const isActive = activeSelector === item.id;
 
@@ -504,7 +548,7 @@ export function OnTapPageContent() {
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.4, delay: 0.08 + index * 0.04 }}
                   whileHover={{ y: -3 }}
-                  className={`group flex items-center gap-4 rounded-[1.3rem] border px-4 py-4 text-left transition duration-300 ${
+                  className={`group min-w-0 flex items-center gap-4 rounded-[1.3rem] border px-4 py-4 text-left transition duration-300 ${
                     isActive
                       ? 'border-cyan/35 bg-[linear-gradient(135deg,rgba(107,231,255,0.08),rgba(9,19,27,0.96))] shadow-[0_18px_40px_rgba(3,10,18,0.3)]'
                       : 'border-white/[0.08] bg-[#09131d]/85 hover:border-white/[0.16] hover:bg-[#0b1621]'
@@ -522,9 +566,9 @@ export function OnTapPageContent() {
                     />
                   </div>
                   <div className="min-w-0">
-                    <p className="text-[0.62rem] font-semibold uppercase tracking-[0.24em] text-cyan/[0.84]">{item.kicker}</p>
-                    <p className="mt-1 text-sm font-semibold uppercase tracking-[0.12em] text-cream md:text-[0.9rem]">{item.label}</p>
-                    <p className="mt-1 text-xs leading-5 text-cream/[0.62] md:text-[0.82rem]">{item.note}</p>
+                    <p className="truncate text-[0.62rem] font-semibold uppercase tracking-[0.24em] text-cyan/[0.84]">{item.kicker}</p>
+                    <p className="truncate mt-1 text-sm font-semibold uppercase tracking-[0.12em] text-cream md:text-[0.9rem]">{item.label}</p>
+                    <p className="truncate mt-1 text-xs leading-5 text-cream/[0.62] md:text-[0.82rem]">{item.note}</p>
                   </div>
                 </motion.button>
               );
@@ -533,8 +577,8 @@ export function OnTapPageContent() {
         </div>
       </section>
 
-      <section className="px-4 py-8 md:px-8 md:py-10">
-        <div className="mx-auto grid max-w-[1380px] gap-6">
+      <section className="overflow-x-hidden px-4 py-8 md:px-8 md:py-10">
+        <div className="mx-auto grid max-w-[1380px] min-w-0 gap-6">
           <motion.article
             id="bar-guide"
             className="section-shell scroll-mt-32 overflow-hidden p-5 md:scroll-mt-36 md:p-6"
@@ -550,10 +594,11 @@ export function OnTapPageContent() {
             <p className="mt-5 text-base leading-7 text-cream/[0.74] md:text-lg">
               From tap handles to bottles, cans, and wine, the full drink lineup starts here.
             </p>
-            <div className="mt-10 grid gap-4">
+
+            <div className="mt-10 grid min-w-0 gap-4">
               {primaryCategory ? (
                 <motion.div
-                  className="group relative overflow-hidden rounded-[1.5rem] border border-white/[0.08] bg-[#09131d] p-5 md:p-6"
+                  className="group relative min-w-0 overflow-hidden rounded-[1.5rem] border border-white/[0.08] bg-[#09131d] p-5 md:p-6"
                   initial={{ opacity: 0, y: 16 }}
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={viewport}
@@ -566,22 +611,19 @@ export function OnTapPageContent() {
                       <Image src={primaryCategory.accentAsset} alt={primaryCategory.title} fill unoptimized sizes="80px" className="object-contain object-right-top" />
                     </div>
                   ) : null}
-                  <div className="relative max-w-2xl">
+                  <div className="relative min-w-0 max-w-2xl">
                     <p className="text-[0.66rem] font-semibold uppercase tracking-[0.24em] text-cyan/[0.84]">Primary pour list</p>
                     <div className="mt-3 flex items-center gap-3">
-                      <Tv2 className="h-5 w-5 text-cyan" />
-                      <h3 className="text-[1.75rem] uppercase leading-[0.94] text-cream md:text-[2rem]">{primaryCategory.title}</h3>
+                      <Tv2 className="h-5 w-5 shrink-0 text-cyan" />
+                      <h3 className="min-w-0 text-[1.75rem] uppercase leading-[0.94] text-cream md:text-[2rem]">{primaryCategory.title}</h3>
                     </div>
                     <p className="mt-3 max-w-2xl text-sm leading-6 text-cream/[0.72] md:text-[0.98rem]">{primaryCategory.copy}</p>
                   </div>
                   {primaryCategory.items?.length ? (
-                    <div className="relative mt-5 flex flex-wrap gap-2.5">
-                      {primaryCategory.items.map((item) => (
-                        <span key={item} className="rounded-full border border-white/[0.08] bg-white/[0.04] px-3.5 py-2 text-[0.72rem] font-semibold uppercase tracking-[0.14em] text-cream/[0.82]">
-                          {item}
-                        </span>
-                      ))}
-                    </div>
+                    <ScrollableChipRow
+                      items={primaryCategory.items}
+                      className="relative mt-5"
+                    />
                   ) : null}
                   {primaryCategory.assetCluster?.length ? (
                     <div className="relative mt-6 hidden items-end gap-3 md:flex">
@@ -595,10 +637,10 @@ export function OnTapPageContent() {
                 </motion.div>
               ) : null}
 
-              <div className="grid gap-4 lg:grid-cols-[1.06fr_0.94fr]">
+              <div className="grid min-w-0 gap-4 lg:grid-cols-[1.06fr_0.94fr]">
                 {bottleCategory ? (
                   <motion.div
-                    className="group relative overflow-hidden rounded-[1.35rem] border border-white/[0.08] bg-[#0a1520] p-5"
+                    className="group relative min-w-0 overflow-hidden rounded-[1.35rem] border border-white/[0.08] bg-[#0a1520] p-5"
                     initial={{ opacity: 0, y: 16 }}
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={viewport}
@@ -611,18 +653,15 @@ export function OnTapPageContent() {
                       </div>
                     ) : null}
                     <div className="relative flex items-center gap-3">
-                      <Tv2 className="h-5 w-5 text-cyan" />
-                      <h3 className="text-2xl uppercase leading-[0.96] text-cream">{bottleCategory.title}</h3>
+                      <Tv2 className="h-5 w-5 shrink-0 text-cyan" />
+                      <h3 className="min-w-0 text-2xl uppercase leading-[0.96] text-cream">{bottleCategory.title}</h3>
                     </div>
                     <p className="relative mt-3 max-w-xl text-sm leading-6 text-cream/[0.72]">{bottleCategory.copy}</p>
                     {bottleCategory.items?.length ? (
-                      <div className="relative mt-4 flex flex-wrap gap-2">
-                        {bottleCategory.items.map((item) => (
-                          <span key={item} className="glass-chip">
-                            {item}
-                          </span>
-                        ))}
-                      </div>
+                      <ScrollableChipRow
+                        items={bottleCategory.items}
+                        className="relative mt-4"
+                      />
                     ) : null}
                     {bottleCategory.assetCluster?.length ? (
                       <div className="relative mt-5 hidden items-end gap-3 md:flex">
@@ -636,10 +675,10 @@ export function OnTapPageContent() {
                   </motion.div>
                 ) : null}
 
-                <div className="grid gap-4">
+                <div className="grid min-w-0 gap-4">
                   {nonAlcoholicCategory ? (
                     <motion.div
-                      className="group relative overflow-hidden rounded-[1.3rem] border border-white/[0.08] bg-[#0a1520] p-5"
+                      className="group relative min-w-0 overflow-hidden rounded-[1.3rem] border border-white/[0.08] bg-[#0a1520] p-5"
                       initial={{ opacity: 0, y: 16 }}
                       whileInView={{ opacity: 1, y: 0 }}
                       viewport={viewport}
@@ -652,18 +691,15 @@ export function OnTapPageContent() {
                         </div>
                       ) : null}
                       <div className="relative flex items-center gap-3">
-                        <Tv2 className="h-5 w-5 text-cyan" />
-                        <h3 className="text-xl uppercase leading-[0.96] text-cream">{nonAlcoholicCategory.title}</h3>
+                        <Tv2 className="h-5 w-5 shrink-0 text-cyan" />
+                        <h3 className="min-w-0 text-xl uppercase leading-[0.96] text-cream">{nonAlcoholicCategory.title}</h3>
                       </div>
                       <p className="relative mt-3 text-sm leading-6 text-cream/[0.72]">{nonAlcoholicCategory.copy}</p>
                       {nonAlcoholicCategory.items?.length ? (
-                        <div className="relative mt-4 flex flex-wrap gap-2">
-                          {nonAlcoholicCategory.items.map((item) => (
-                            <span key={item} className="glass-chip">
-                              {item}
-                            </span>
-                          ))}
-                        </div>
+                        <ScrollableChipRow
+                          items={nonAlcoholicCategory.items}
+                          className="relative mt-4"
+                        />
                       ) : null}
                     </motion.div>
                   ) : null}
@@ -687,7 +723,7 @@ export function OnTapPageContent() {
 
               {wineCategory ? (
                 <motion.div
-                  className="group relative overflow-hidden rounded-[1.35rem] border border-white/[0.08] bg-[#0a1520] p-5 md:p-6"
+                  className="group relative min-w-0 overflow-hidden rounded-[1.35rem] border border-white/[0.08] bg-[#0a1520] p-5 md:p-6"
                   initial={{ opacity: 0, y: 16 }}
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={viewport}
@@ -700,14 +736,14 @@ export function OnTapPageContent() {
                     </div>
                   ) : null}
                   <div className="relative flex items-center gap-3">
-                    <Tv2 className="h-5 w-5 text-cyan" />
-                    <h3 className="text-2xl uppercase leading-[0.96] text-cream">{wineCategory.title}</h3>
+                    <Tv2 className="h-5 w-5 shrink-0 text-cyan" />
+                    <h3 className="min-w-0 text-2xl uppercase leading-[0.96] text-cream">{wineCategory.title}</h3>
                   </div>
                   <p className="relative mt-3 max-w-xl text-sm leading-6 text-cream/[0.72]">{wineCategory.copy}</p>
                   {wineCategory.items?.length ? (
-                    <div className="relative mt-5 grid gap-2 sm:grid-cols-2">
+                    <div className="relative mt-5 grid min-w-0 gap-2 sm:grid-cols-2">
                       {wineCategory.items.map((item) => (
-                        <div key={item} className="rounded-[0.95rem] border border-white/[0.08] bg-white/[0.03] px-3 py-2 text-sm font-medium text-cream/[0.82]">
+                        <div key={item} className="min-w-0 rounded-[0.95rem] border border-white/[0.08] bg-white/[0.03] px-3 py-2 text-sm font-medium text-cream/[0.82]">
                           {item}
                         </div>
                       ))}
@@ -720,9 +756,9 @@ export function OnTapPageContent() {
 
           <PinnedCocktailGallery id="cocktail-gallery" items={cocktails} />
 
-          <div className="grid gap-6 xl:grid-cols-[0.92fr_1.08fr]">
+          <div className="grid min-w-0 gap-6 xl:grid-cols-[0.92fr_1.08fr]">
             <motion.article
-              className="section-shell p-5 md:p-6"
+              className="section-shell min-w-0 p-5 md:p-6"
               initial={{ opacity: 0, y: 24 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={viewport}
