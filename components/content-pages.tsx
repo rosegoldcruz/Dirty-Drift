@@ -279,9 +279,8 @@ function PinnedCocktailGallery({
     const lenis = new Lenis({
       duration: 1.6,
       smoothWheel: true,
-      smoothTouch: false,
       wheelMultiplier: 0.8,
-      touchMultiplier: 1.0
+      touchMultiplier: 1
     });
 
     const raf = (time: number) => {
