@@ -1,4 +1,11 @@
+import type { Metadata } from 'next';
 import { OnTapPageContent } from '@/components/content-pages';
+
+export const metadata: Metadata = {
+  title: 'On Tap | Driftwoods Sports Grill',
+  description:
+    'See what is on tap at Driftwoods in Sunnyslope, Phoenix: draft beer, bottles, cans, wine, and the full signature cocktail lineup.'
+};
 
 export default function OnTapPage() {
   return <OnTapPageContent />;
