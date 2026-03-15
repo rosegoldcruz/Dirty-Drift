@@ -189,7 +189,7 @@ function PinnedCocktailGallery({
           start: 'top top',
           end: () => `+=${getDistance()}`,
           pin: pinWrapRef.current,
-          scrub: 1.1,
+          scrub: 0.45,
           invalidateOnRefresh: true,
           anticipatePin: 1
         }
@@ -238,10 +238,10 @@ function PinnedCocktailGallery({
               </div>
             </div>
 
-            <div ref={frameRef} className="w-full overflow-hidden">
+            <div ref={frameRef} className="w-full overflow-x-auto overflow-y-hidden overscroll-x-contain">
               <div
                 ref={trackRef}
-                className="flex h-[55vh] min-h-[400px] w-max items-stretch gap-6 px-8 xl:px-12"
+                className="flex h-[55vh] min-h-[400px] w-max items-stretch gap-6 px-8 pb-4 xl:px-12"
               >
                 {items.map((item) => (
                   <CocktailCard
