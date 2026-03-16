@@ -1,14 +1,201 @@
+// /home/Dirty-Drift/app/on-tap/OnTapClient.tsx
+
 'use client';
 
 import Image from 'next/image';
 import Link from 'next/link';
-import { useEffect, useRef, useState } from 'react';
-import { motion } from 'framer-motion';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { AnimatePresence, motion } from 'framer-motion';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { Tv2 } from 'lucide-react';
 import { SiteNav } from '@/components/site-nav';
 import { SiteFooter } from '@/components/site-footer';
+import DriftwoodsTapSection from '@/components/driftwoods/driftwoodsTapSection';
+import { TAP_ASSETS } from '@/lib/driftwoods-taps';
+
+// ==========================================
+// PAGE STATE MACHINE
+// ==========================================
+type PageState = 'intro' | 'interactive';
+type IntroPhase = 'loading' | 'camera' | 'done';
+
+// ==========================================
+// CINEMATIC INTRO
+// ==========================================
+function CinematicIntro({ onComplete }: { onComplete: () => void }) {
+  const [phase, setPhase] = useState<IntroPhase>('loading');
+  const containerRef = useRef<HTMLDivElement>(null);
+  const timelineRef = useRef<gsap.core.Timeline | null>(null);
+
+  const skip = useCallback(() => {
+    if (timelineRef.current) {
+      timelineRef.current.kill();
+    }
+    onComplete();
+  }, [onComplete]);
+
+  // Move from loading → camera after 1.4s
+  useEffect(() => {
+    const timer = setTimeout(() => setPhase('camera'), 1400);
+    return () => clearTimeout(timer);
+  }, []);
+
+  // Run GSAP camera animation
+  useEffect(() => {
+    if (phase !== 'camera' || !containerRef.current) return;
+
+    gsap.registerPlugin(ScrollTrigger);
+
+    const tl = gsap.timeline({
+      onComplete: () => {
+        setPhase('done');
+        setTimeout(onComplete, 180);
+      },
+    });
+    timelineRef.current = tl;
+
+    const container = containerRef.current;
+    const backdrop = container.querySelector('[data-intro-backdrop]') as HTMLElement;
+    const system = container.querySelector('[data-intro-system]') as HTMLElement;
+    const glow = container.querySelector('[data-intro-glow]') as HTMLElement;
+    const title = container.querySelector('[data-intro-title]') as HTMLElement;
+    const subtitle = container.querySelector('[data-intro-subtitle]') as HTMLElement;
+    const vignette = container.querySelector('[data-intro-vignette]') as HTMLElement;
+
+    // Initial states
+    tl.set(backdrop, { scale: 3.2, filter: 'blur(28px)', opacity: 0 })
+      .set(system, { scale: 2.8, y: '40%', filter: 'blur(24px)', opacity: 0 })
+      .set(glow, { opacity: 0, scale: 0.5 })
+      .set(title, { opacity: 0, y: 40, scale: 1.15 })
+      .set(subtitle, { opacity: 0, y: 20 })
+      .set(vignette, { opacity: 0 });
+
+    // Phase 1: Title reveal with cinematic bloom
+    tl.to(title, { opacity: 1, y: 0, scale: 1, duration: 0.8, ease: 'power3.out' }, 0.1)
+      .to(subtitle, { opacity: 0.7, y: 0, duration: 0.6, ease: 'power2.out' }, 0.4)
+      .to(vignette, { opacity: 1, duration: 0.8, ease: 'power1.in' }, 0.2);
+
+    // Phase 2: Camera push — backdrop and system zoom in with depth-of-field
+    tl.to(backdrop, { opacity: 0.16, scale: 1.5, filter: 'blur(5px)', duration: 2.2, ease: 'power2.inOut' }, 0.9)
+      .to(system, { opacity: 0.55, scale: 1.1, y: '-5%', filter: 'blur(2px)', duration: 2.4, ease: 'power2.inOut' }, 1.1)
+      .to(glow, { opacity: 0.85, scale: 1.3, duration: 1.6, ease: 'power1.inOut' }, 1.3);
+
+    // Phase 3: Title fades out, camera settles front-facing
+    tl.to(title, { opacity: 0, y: -30, duration: 0.6, ease: 'power2.in' }, 2.4)
+      .to(subtitle, { opacity: 0, y: -15, duration: 0.5, ease: 'power2.in' }, 2.5)
+      .to(system, { opacity: 0.1, scale: 1, y: '0%', filter: 'blur(0px)', duration: 1.0, ease: 'power2.out' }, 2.8)
+      .to(backdrop, { opacity: 0, scale: 1, filter: 'blur(0px)', duration: 0.8, ease: 'power2.out' }, 3.0);
+
+    // Phase 4: Entire overlay dissolves
+    tl.to(container, { opacity: 0, duration: 0.5, ease: 'power2.out' }, 3.6);
+
+    return () => {
+      tl.kill();
+    };
+  }, [phase, onComplete]);
+
+  return (
+    <div
+      ref={containerRef}
+      className="fixed inset-0 z-[60] flex items-center justify-center overflow-hidden"
+      style={{
+        background: 'radial-gradient(circle at 50% 40%, #12100e 0%, #060504 50%, #000 100%)',
+      }}
+    >
+      {/* Cinematic vignette */}
+      <div
+        data-intro-vignette
+        className="pointer-events-none absolute inset-0 opacity-0"
+        style={{
+          background: 'radial-gradient(ellipse at center, transparent 40%, rgba(0,0,0,0.7) 100%)',
+        }}
+      />
+
+      {/* Ambient bar atmosphere backdrop */}
+      <div
+        data-intro-backdrop
+        className="absolute inset-0 opacity-0"
+        style={{
+          background:
+            'radial-gradient(ellipse at 50% 30%, rgba(255,179,71,0.18) 0%, transparent 50%), radial-gradient(ellipse at 30% 70%, rgba(255,132,0,0.1) 0%, transparent 40%), radial-gradient(ellipse at 70% 60%, rgba(107,231,255,0.06) 0%, transparent 35%)',
+        }}
+      />
+
+      {/* Tap system silhouette — camera target */}
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        data-intro-system
+        src={TAP_ASSETS.system.png}
+        alt=""
+        aria-hidden="true"
+        className="pointer-events-none absolute w-[80vw] max-w-[900px] opacity-0"
+        style={{ objectFit: 'contain' }}
+      />
+
+      {/* Center ambient glow */}
+      <div
+        data-intro-glow
+        className="pointer-events-none absolute h-[50vh] w-[50vw] rounded-full opacity-0"
+        style={{
+          background: 'radial-gradient(circle, rgba(255,176,62,0.35) 0%, transparent 70%)',
+          filter: 'blur(60px)',
+        }}
+      />
+
+      {/* Title overlay */}
+      <div className="relative z-10 flex flex-col items-center gap-4 text-center">
+        <h2
+          data-intro-title
+          className="text-5xl font-bold uppercase tracking-[0.08em] text-[#fff8ec] opacity-0 md:text-7xl"
+          style={{ fontFamily: 'var(--font-display), Impact, sans-serif', textShadow: '0 4px 40px rgba(255,176,62,0.3)' }}
+        >
+          Driftwoods on Tap
+        </h2>
+        <p
+          data-intro-subtitle
+          className="text-sm uppercase tracking-[0.28em] text-[#ffd39a] opacity-0 md:text-base"
+        >
+          12 handles · Live pours · Interactive
+        </p>
+      </div>
+
+      {/* Loading bar (loading phase only) */}
+      <AnimatePresence>
+        {phase === 'loading' ? (
+          <motion.div
+            className="absolute bottom-[15%] flex flex-col items-center gap-3"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.3 }}
+          >
+            <div className="h-[2px] w-48 overflow-hidden rounded-full bg-white/[0.08]">
+              <motion.div
+                className="h-full rounded-full bg-gradient-to-r from-amber-400 to-orange-500"
+                initial={{ width: '0%' }}
+                animate={{ width: '100%' }}
+                transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1] }}
+              />
+            </div>
+            <span className="text-[0.68rem] uppercase tracking-[0.3em] text-[#ffd39a]/60">
+              Entering tap room
+            </span>
+          </motion.div>
+        ) : null}
+      </AnimatePresence>
+
+      {/* Skip button — always available */}
+      <button
+        type="button"
+        onClick={skip}
+        className="absolute bottom-8 right-8 z-20 rounded-full border border-white/[0.12] bg-white/[0.06] px-5 py-2.5 text-[0.72rem] uppercase tracking-[0.2em] text-[#ffd39a]/70 backdrop-blur-sm transition duration-200 hover:bg-white/[0.1] hover:text-[#ffd39a]"
+      >
+        Skip intro
+      </button>
+    </div>
+  );
+}
 
 // ==========================================
 // 1. DATA RENDERED DIRECTLY IN FILE
@@ -254,10 +441,7 @@ function PinnedCocktailGallery({
 }
 
 // ==========================================
-// 5. MAIN CLIENT EXPORT
-// ==========================================
-// ==========================================
-// 6. TAP CATEGORY CARDS
+// 5. TAP CATEGORY CARDS
 // ==========================================
 function TapCategoryCards() {
   const primaryCategory = tapCategories[0];
@@ -354,7 +538,7 @@ function TapCategoryCards() {
 }
 
 // ==========================================
-// 7. COCKTAIL TEXT LIST
+// 6. COCKTAIL TEXT LIST
 // ==========================================
 function CocktailTextList() {
   return (
@@ -402,49 +586,77 @@ function CocktailTextList() {
 }
 
 // ==========================================
-// 8. MAIN CLIENT EXPORT
+// 7. MAIN CLIENT EXPORT
 // ==========================================
 export function OnTapClient() {
+  const [pageState, setPageState] = useState<PageState>('intro');
+
+  const handleIntroComplete = useCallback(() => {
+    setPageState('interactive');
+  }, []);
+
   return (
-    <main className="page-shell min-h-screen w-full max-w-[100vw] overflow-x-hidden">
-      <SiteNav />
+    <>
+      {/* Cinematic intro overlay */}
+      <AnimatePresence>
+        {pageState === 'intro' && (
+          <CinematicIntro onComplete={handleIntroComplete} />
+        )}
+      </AnimatePresence>
 
-      <section className="px-4 pb-6 pt-28 md:px-8 md:pb-8 md:pt-32">
-        <div className="relative mx-auto max-w-[1380px] overflow-hidden rounded-[2.15rem] border border-white/10 bg-white/[0.03] p-6 shadow-panel backdrop-blur-sm md:p-10">
-          <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_72%_30%,rgba(107,231,255,0.12),transparent_24%),radial-gradient(circle_at_82%_62%,rgba(255,97,56,0.12),transparent_18%)]" />
+      {/* Main page content — renders underneath intro, revealed when intro completes */}
+      <main className="page-shell min-h-screen w-full max-w-[100vw] overflow-x-hidden">
+        <SiteNav />
 
-          <motion.div
-            initial={{ opacity: 0, y: 24 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-            className="relative z-10 max-w-4xl"
-          >
-            <p className="eyebrow">THE DRIFTWOODS BAR</p>
-            <h1 className="mt-4 text-5xl uppercase leading-[0.9] text-cream md:text-7xl">SEE WHAT&apos;S ON TAP.</h1>
-            <p className="mt-6 max-w-3xl text-base leading-7 text-cream/[0.74] md:text-lg">
-              Drafts, bottles, cans, wine, and our signature cocktails. If it&apos;s behind the bar, it&apos;s listed here.
-            </p>
-            <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-              <Link href="/order" className="cta-primary">
-                ORDER ONLINE →
-              </Link>
-              <Link href="#cocktail-gallery" className="cta-secondary">
-                VIEW COCKTAILS →
-              </Link>
-            </div>
-          </motion.div>
-        </div>
-      </section>
+        {/* Interactive tap system — the cinematic destination */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={pageState === 'interactive' ? { opacity: 1 } : { opacity: 0 }}
+          transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1], delay: 0.1 }}
+        >
+          <DriftwoodsTapSection />
+        </motion.div>
 
-      <section className="px-4 py-8 md:px-8 md:py-10">
-        <div className="mx-auto grid max-w-[1380px] gap-6">
-          <TapCategoryCards />
-          <PinnedCocktailGallery id="cocktail-gallery" items={cocktails} />
-          <CocktailTextList />
-        </div>
-      </section>
+        {/* Hero banner below tap system */}
+        <section className="px-4 pb-6 pt-10 md:px-8 md:pb-8 md:pt-14">
+          <div className="relative mx-auto max-w-[1380px] overflow-hidden rounded-[2.15rem] border border-white/10 bg-white/[0.03] p-6 shadow-panel backdrop-blur-sm md:p-10">
+            <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_72%_30%,rgba(107,231,255,0.12),transparent_24%),radial-gradient(circle_at_82%_62%,rgba(255,97,56,0.12),transparent_18%)]" />
 
-      <SiteFooter />
-    </main>
+            <motion.div
+              initial={{ opacity: 0, y: 24 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={viewport}
+              transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+              className="relative z-10 max-w-4xl"
+            >
+              <p className="eyebrow">THE DRIFTWOODS BAR</p>
+              <h1 className="mt-4 text-5xl uppercase leading-[0.9] text-cream md:text-7xl">SEE WHAT&apos;S ON TAP.</h1>
+              <p className="mt-6 max-w-3xl text-base leading-7 text-cream/[0.74] md:text-lg">
+                Drafts, bottles, cans, wine, and our signature cocktails. If it&apos;s behind the bar, it&apos;s listed here.
+              </p>
+              <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+                <Link href="/order" className="cta-primary">
+                  ORDER ONLINE →
+                </Link>
+                <Link href="#cocktail-gallery" className="cta-secondary">
+                  VIEW COCKTAILS →
+                </Link>
+              </div>
+            </motion.div>
+          </div>
+        </section>
+
+        {/* Categories, cocktail gallery, text list */}
+        <section className="px-4 py-8 md:px-8 md:py-10">
+          <div className="mx-auto grid max-w-[1380px] gap-6">
+            <TapCategoryCards />
+            <PinnedCocktailGallery id="cocktail-gallery" items={cocktails} />
+            <CocktailTextList />
+          </div>
+        </section>
+
+        <SiteFooter />
+      </main>
+    </>
   );
 }
