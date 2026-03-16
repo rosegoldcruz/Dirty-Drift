@@ -7,6 +7,8 @@ import { motion } from 'framer-motion';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { Tv2 } from 'lucide-react';
+import { SiteNav } from '@/components/site-nav';
+import { SiteFooter } from '@/components/site-footer';
 
 // ==========================================
 // 1. DATA RENDERED DIRECTLY IN FILE
@@ -133,7 +135,7 @@ function CocktailCard({
 // ==========================================
 function ChipRow({ items }: { items: string[] }) {
   return (
-    <div className="mt-4 overflow-x-auto overflow-y-hidden overscroll-x-contain pb-2 sm:overflow-visible">
+    <div className="mt-4 overflow-x-auto overflow-y-hidden overscroll-x-contain pb-2 sm:overflow-visible" data-lenis-prevent style={{ touchAction: 'pan-x' }}>
       <div className="flex w-max gap-2 pr-3 sm:w-auto sm:flex-wrap sm:pr-0">
         {items.map((item) => (
           <span key={item} className="glass-chip shrink-0">
@@ -206,7 +208,7 @@ function PinnedCocktailGallery({
           <h2 className="mt-4 text-4xl uppercase leading-[0.94] text-cream md:text-5xl">The full cocktail lineup.</h2>
           <p className="mt-4 text-sm leading-6 text-cream/[0.68]">Swipe through the cocktail wall.</p>
         </div>
-        <div className="mt-6 overflow-x-auto overflow-y-hidden overscroll-x-contain">
+        <div className="mt-6 overflow-x-auto overflow-y-hidden overscroll-x-contain" data-lenis-prevent style={{ touchAction: 'pan-x' }}>
           <div className="flex w-max gap-4 pb-4 pr-5 md:gap-6">
             {items.map((item) => (
               <CocktailCard
@@ -254,9 +256,159 @@ function PinnedCocktailGallery({
 // ==========================================
 // 5. MAIN CLIENT EXPORT
 // ==========================================
+// ==========================================
+// 6. TAP CATEGORY CARDS
+// ==========================================
+function TapCategoryCards() {
+  const primaryCategory = tapCategories[0];
+  const bottleCategory = tapCategories[1];
+  const wineCategory = tapCategories[2];
+  const nonAlcoholicCategory = tapCategories[3];
+
+  return (
+    <motion.article
+      className="section-shell p-5 md:p-6"
+      initial={{ opacity: 0, y: 24 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={viewport}
+      transition={{ duration: 0.45 }}
+    >
+      <p className="eyebrow">Bar setup</p>
+      <h2 className="mt-4 text-4xl uppercase leading-[0.94] text-cream md:text-5xl">Real drafts. Bottles. Wine.</h2>
+
+      <div className="mt-10 grid min-w-0 items-start gap-4 lg:grid-cols-2">
+        {primaryCategory ? (
+          <div className="group relative overflow-hidden rounded-[1.5rem] border border-white/[0.08] bg-[#09131d] p-6">
+            <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(135deg,rgba(107,231,255,0.06),transparent_48%)]" />
+            <div className="relative z-10 flex items-center gap-3">
+              <Tv2 className="h-5 w-5 text-cyan" />
+              <h3 className="text-[2rem] uppercase leading-[0.94] text-cream">{primaryCategory.title}</h3>
+            </div>
+            <p className="relative z-10 mt-3 text-cream/[0.72]">{primaryCategory.copy}</p>
+            {primaryCategory.assetCluster ? (
+              <div className="relative z-10 mt-4 flex items-end gap-3">
+                {primaryCategory.assetCluster.map((asset) => (
+                  <div key={asset} className="relative h-16 w-14 opacity-[0.72] transition duration-300 group-hover:-translate-y-1 group-hover:opacity-95">
+                    <Image src={asset} alt="Tap asset" fill unoptimized sizes="56px" className="object-contain object-bottom" />
+                  </div>
+                ))}
+              </div>
+            ) : null}
+            {primaryCategory.items ? <ChipRow items={primaryCategory.items} /> : null}
+          </div>
+        ) : null}
+
+        <div className="grid content-start self-start gap-4">
+          {bottleCategory ? (
+            <div className="group relative overflow-hidden rounded-[1.5rem] border border-white/[0.08] bg-[#09131d] p-6">
+              <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(135deg,rgba(255,157,87,0.06),transparent_48%)]" />
+              <div className="relative z-10 flex items-center gap-3">
+                <Tv2 className="h-5 w-5 text-cyan" />
+                <h3 className="text-xl uppercase leading-[0.94] text-cream">{bottleCategory.title}</h3>
+              </div>
+              <p className="relative z-10 mt-2 text-sm text-cream/[0.72]">{bottleCategory.copy}</p>
+              {bottleCategory.assetCluster ? (
+                <div className="relative z-10 mt-3 flex items-end gap-3">
+                  {bottleCategory.assetCluster.map((asset) => (
+                    <div key={asset} className="relative h-12 w-10 opacity-[0.72] transition duration-300 group-hover:-translate-y-1 group-hover:opacity-95">
+                      <Image src={asset} alt="Bottle asset" fill unoptimized sizes="40px" className="object-contain object-bottom" />
+                    </div>
+                  ))}
+                </div>
+              ) : null}
+              {bottleCategory.items ? <ChipRow items={bottleCategory.items} /> : null}
+            </div>
+          ) : null}
+
+          {wineCategory ? (
+            <div className="group relative overflow-hidden rounded-[1.5rem] border border-white/[0.08] bg-[#09131d] p-6">
+              <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(135deg,rgba(180,126,255,0.06),transparent_48%)]" />
+              <div className="relative z-10 flex items-center gap-3">
+                <Tv2 className="h-5 w-5 text-cyan" />
+                <h3 className="text-xl uppercase leading-[0.94] text-cream">{wineCategory.title}</h3>
+              </div>
+              <p className="relative z-10 mt-2 text-sm text-cream/[0.72]">{wineCategory.copy}</p>
+              {(wineCategory as { accentAsset?: string }).accentAsset ? (
+                <div className="pointer-events-none absolute right-6 top-6 h-16 w-12 opacity-40">
+                  <Image src={(wineCategory as { accentAsset: string }).accentAsset} alt="Wine glass" fill unoptimized sizes="48px" className="object-contain object-right-top" />
+                </div>
+              ) : null}
+              {wineCategory.items ? <ChipRow items={wineCategory.items} /> : null}
+            </div>
+          ) : null}
+
+          {nonAlcoholicCategory ? (
+            <div className="overflow-hidden rounded-[1.5rem] border border-white/[0.08] bg-[#09131d] p-6">
+              <div className="flex items-center gap-3">
+                <Tv2 className="h-5 w-5 text-cyan" />
+                <h3 className="text-xl uppercase leading-[0.94] text-cream">{nonAlcoholicCategory.title}</h3>
+              </div>
+              <p className="mt-2 text-sm text-cream/[0.72]">{nonAlcoholicCategory.copy}</p>
+              {nonAlcoholicCategory.items ? <ChipRow items={nonAlcoholicCategory.items} /> : null}
+            </div>
+          ) : null}
+        </div>
+      </div>
+    </motion.article>
+  );
+}
+
+// ==========================================
+// 7. COCKTAIL TEXT LIST
+// ==========================================
+function CocktailTextList() {
+  return (
+    <motion.article
+      className="section-shell p-5 md:p-6"
+      initial={{ opacity: 0, y: 24 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={viewport}
+      transition={{ duration: 0.45, delay: 0.04 }}
+    >
+      <div className="rounded-[1.35rem] border border-white/[0.08] bg-[#09131d] p-5 md:p-6">
+        <div className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
+          <div>
+            <p className="text-[0.64rem] font-semibold uppercase tracking-[0.24em] text-cyan/[0.84]">Full roster</p>
+            <h3 className="mt-3 text-2xl uppercase leading-[0.94] text-cream md:text-[2rem]">Every cocktail on the board.</h3>
+          </div>
+          <p className="max-w-md text-sm leading-6 text-cream/[0.62]">
+            Signature pours, listed cleanly for people who want the lineup in text.
+          </p>
+        </div>
+
+        <div className="mt-6 grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+          {cocktails.map((item, index) => (
+            <motion.div
+              key={item.name}
+              className="rounded-[1.05rem] border border-white/[0.08] bg-white/[0.03] px-4 py-4"
+              initial={{ opacity: 0, y: 14 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={viewport}
+              transition={{ duration: 0.3, delay: index * 0.02 }}
+            >
+              <div className="flex items-start gap-3">
+                <span className="mt-1 h-2 w-2 shrink-0 rounded-full bg-cyan/80" />
+                <div>
+                  <h4 className="text-[1rem] font-semibold uppercase leading-[0.98] text-cream">{item.name}</h4>
+                  <p className="mt-2 text-sm leading-6 text-cream/[0.68]">{item.build}</p>
+                </div>
+              </div>
+            </motion.div>
+          ))}
+        </div>
+      </div>
+    </motion.article>
+  );
+}
+
+// ==========================================
+// 8. MAIN CLIENT EXPORT
+// ==========================================
 export function OnTapClient() {
   return (
-    <main className="page-shell min-h-screen w-full max-w-[100vw] overflow-hidden">
+    <main className="page-shell min-h-screen w-full max-w-[100vw] overflow-x-hidden">
+      <SiteNav />
+
       <section className="px-4 pb-6 pt-28 md:px-8 md:pb-8 md:pt-32">
         <div className="relative mx-auto max-w-[1380px] overflow-hidden rounded-[2.15rem] border border-white/10 bg-white/[0.03] p-6 shadow-panel backdrop-blur-sm md:p-10">
           <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_72%_30%,rgba(107,231,255,0.12),transparent_24%),radial-gradient(circle_at_82%_62%,rgba(255,97,56,0.12),transparent_18%)]" />
@@ -276,15 +428,23 @@ export function OnTapClient() {
               <Link href="/order" className="cta-primary">
                 ORDER ONLINE →
               </Link>
-              <Link href="/menu" className="cta-secondary">
-                VIEW FOOD MENU →
+              <Link href="#cocktail-gallery" className="cta-secondary">
+                VIEW COCKTAILS →
               </Link>
             </div>
           </motion.div>
         </div>
       </section>
 
-      <PinnedCocktailGallery id="cocktail-gallery" items={cocktails} />
+      <section className="px-4 py-8 md:px-8 md:py-10">
+        <div className="mx-auto grid max-w-[1380px] gap-6">
+          <TapCategoryCards />
+          <PinnedCocktailGallery id="cocktail-gallery" items={cocktails} />
+          <CocktailTextList />
+        </div>
+      </section>
+
+      <SiteFooter />
     </main>
   );
 }

@@ -90,10 +90,11 @@ export function SiteNav() {
               />
               <div
                 className="relative flex h-full min-h-0 flex-col overflow-y-auto overscroll-contain p-6 md:p-8"
+                data-lenis-prevent
                 onWheelCapture={(event) => {
                   event.stopPropagation();
                 }}
-                style={{ WebkitOverflowScrolling: 'touch' }}
+                style={{ WebkitOverflowScrolling: 'touch', touchAction: 'pan-y' }}
               >
                 <div className="mb-8">
                   <div className="relative h-20 w-full max-w-[340px] md:h-24 md:max-w-[420px]">

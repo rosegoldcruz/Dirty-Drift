@@ -36,7 +36,19 @@ export function LenisScrollProvider({ children }: LenisScrollProviderProps) {
     gsap.ticker.add(update);
     gsap.ticker.lagSmoothing(0);
 
+    const observer = new MutationObserver(() => {
+      const navOpen = document.body.style.overflow === 'hidden';
+      if (navOpen) {
+        lenis.stop();
+      } else {
+        lenis.start();
+      }
+    });
+
+    observer.observe(document.body, { attributeFilter: ['style'] });
+
     return () => {
+      observer.disconnect();
       gsap.ticker.remove(update);
       lenis.off('scroll', handleScroll);
       lenis.destroy();
