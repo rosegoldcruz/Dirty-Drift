@@ -201,7 +201,7 @@ function HeroSection() {
               <Link href={mapsPlaceUrl} target="_blank" className="underline decoration-cyan/60 underline-offset-4 transition duration-300 hover:text-cyan">
                 9832 N 7th Street.
               </Link>{' '}
-              Three patios. A 60-ft LED wall. A kitchen that doesn't cut corners. Now you know.
+              Three patios. A massive 16-foot seamless LED feature wall. A kitchen that doesn't cut corners. Now you know.
             </p>
             <p className="mt-6 w-full text-base leading-7 text-cream/[0.74] md:text-lg">
               We built Driftwoods for the nights that deserve more than "whatever's closest." Sports on screens big enough to matter, food made from scratch, and patios that keep the night moving. These are Sunnyslope’s tables. Grab a chair and join the Drift. The tide’s already rolling in.
@@ -419,7 +419,7 @@ function AfterDarkSection() {
             {
               image: '/bar%20and%20drinks/cool%20bar.jpg',
               title: 'SCREENS THAT CHANGE THE ROOM',
-              copy: '25+ HDTVs and a 60-ft indoor LED wall give the game the kind of scale it should have.'
+              copy: '25+ HDTVs and a massive 16-foot seamless LED feature wall that can act as one giant stadium-style screen or 8 individual HD feeds.'
             },
             {
               image: '/bar%20and%20drinks/Drink%20vibes.png',

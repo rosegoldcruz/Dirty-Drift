@@ -226,7 +226,7 @@ export const heroCards: HomeCard[] = [
   {
     title: 'The Screen Situation',
     copy:
-      'We put in 25+ HDTVs and a 60-ft indoor LED wall for one reason: if the game matters, you should be able to feel it from every seat in the room.',
+      'We put in 25+ HDTVs and a massive 16-foot seamless LED feature wall that can act as one giant stadium-style screen or 8 individual HD feeds — for one reason: if the game matters, you should be able to feel it from every seat in the room.',
     image: '/bar%20and%20drinks/cool%20bar.jpg'
   },
   {
@@ -939,7 +939,7 @@ export const screenSetupDetails: EventItem[] = [
     copy: 'Sightlines across the room matter. We built the screen layout so the game still works when the bar is full.'
   },
   {
-    title: '60-ft Indoor LED Wall',
+    title: '16-ft Seamless LED Feature Wall',
     copy: 'When the moment is supposed to feel big, this is the screen that makes it feel big.'
   },
   {
